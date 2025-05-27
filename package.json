@@ -12,6 +12,7 @@
     "@ljharb/tsconfig": "^0.3.2",
     "@supabase/supabase-js": "^2.49.8",
     "bcryptjs": "^3.0.2",
+    "browser-image-compression": "^2.0.2",
     "formidable": "^3.5.4",
     "js-cookie": "^3.0.5",
     "next": "15.3.2",
