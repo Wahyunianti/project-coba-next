@@ -9,19 +9,27 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ljharb/tsconfig": "^0.3.2",
+    "@supabase/supabase-js": "^2.49.8",
+    "bcryptjs": "^3.0.2",
+    "formidable": "^3.5.4",
+    "js-cookie": "^3.0.5",
+    "next": "15.3.2",
+    "next-auth": "^4.24.11",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "next": "15.3.2"
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/formidable": "^3.4.5",
+    "@types/js-cookie": "^3.0.6",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "15.3.2",
-    "@eslint/eslintrc": "^3"
+    "tailwindcss": "^4",
+    "typescript": "5.8.3"
   }
 }
