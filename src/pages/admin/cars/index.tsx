@@ -21,11 +21,37 @@ export default function CarList() {
     }
   };
 
-  const handleDelete = async (id: number | string) => {
-    if (!confirm('Yakin hapus mobil ini?')) return;
-    await supabase.from('cars').delete().eq('id', id);
-    fetchCars();
-  };
+const handleDelete = async (id: number | string) => {
+  const car = cars.find(c => c.id === id);
+  if (!car) return;
+
+  if (!confirm('Yakin hapus mobil ini?')) return;
+
+  const imageUrl: string = car.image;
+  const urlParts = imageUrl.split('/');
+  const filePath = urlParts.slice(urlParts.indexOf('images') + 1).join('/');
+
+  const { error: storageError } = await supabase
+    .storage
+    .from('images')
+    .remove([filePath]);
+
+  if (storageError) {
+    alert('Gagal menghapus gambar: ' + storageError.message);
+    console.error(storageError);
+    return;
+  }
+
+  const { error: dbError } = await supabase.from('cars').delete().eq('id', id);
+  if (dbError) {
+    alert('Gagal menghapus data mobil: ' + dbError.message);
+    console.error(dbError);
+    return;
+  }
+
+  fetchCars();
+};
+
 
   return (
     <div>

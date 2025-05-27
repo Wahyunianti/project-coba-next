@@ -27,26 +27,26 @@ export default function AddCar() {
     if (!e.target.files || e.target.files.length === 0) return;
 
     const file = e.target.files[0];
-    const formData = new FormData();
-    formData.append('file', file);
-
     setUploading(true);
 
     try {
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-      if (!res.ok) {
-        const errData = await res.json();
-        alert('Upload gagal: ' + (errData.message || 'Unknown error'));
-        setUploading(false);
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}.${fileExt}`;
+      const filePath = `cars/${fileName}`; // Folder di bucket Supabase
+
+      const { error: uploadError } = await supabase.storage
+        .from('images') // Ganti dengan nama bucket kamu
+        .upload(filePath, file);
+
+      if (uploadError) {
+        alert('Upload gagal: ' + uploadError.message);
         return;
       }
 
-      const data = await res.json();
-      setForm(prev => ({ ...prev, image: data.fileUrl }));
+      const { data } = supabase.storage.from('images').getPublicUrl(filePath);
+      setForm(prev => ({ ...prev, image: data.publicUrl }));
     } catch (error) {
+      console.error(error);
       alert('Upload gagal');
     } finally {
       setUploading(false);
@@ -56,8 +56,8 @@ export default function AddCar() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!form.name || !form.original_price || !form.promo_price || !form.description) {
-      alert('Harap lengkapi semua field');
+    if (!form.name || !form.original_price || !form.promo_price || !form.description || !form.image) {
+      alert('Harap lengkapi semua field termasuk gambar');
       return;
     }
 
@@ -76,11 +76,10 @@ export default function AddCar() {
       return;
     }
 
-    // Jika sukses, redirect ke list mobil
     router.push('/admin/cars');
   };
 
-  if (!isClient) return null; // mencegah SSR hydration error
+  if (!isClient) return null;
 
   return (
     <form onSubmit={handleSubmit} style={{ maxWidth: 600, margin: 'auto', padding: 20 }}>
