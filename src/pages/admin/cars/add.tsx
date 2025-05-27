@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/router';
+import Image from 'next/image';
 
 export default function AddCar() {
   const [isClient, setIsClient] = useState(false);
@@ -47,7 +48,7 @@ export default function AddCar() {
       const data = await res.json();
       setForm(prev => ({ ...prev, image: data.fileUrl }));
     } catch (error) {
-      alert('Upload gagal');
+      alert(error);
     } finally {
       setUploading(false);
     }
@@ -121,7 +122,10 @@ export default function AddCar() {
       {form.image && (
         <div style={{ marginBottom: 12 }}>
           <p>Preview:</p>
-          <img src={form.image} alt="Preview" style={{ maxWidth: 300 }} />
+          <Image 
+          src={form.image} 
+          alt="Preview" 
+          style={{ maxWidth: 300 }} />
         </div>
       )}
       <textarea
