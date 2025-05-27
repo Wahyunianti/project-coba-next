@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/router';
+import imageCompression from 'browser-image-compression'; // <-- Import kompresor
 
 export default function AddCar() {
   const [isClient, setIsClient] = useState(false);
@@ -30,13 +31,20 @@ export default function AddCar() {
     setUploading(true);
 
     try {
+      // Kompresi gambar
+      const compressedFile = await imageCompression(file, {
+        maxSizeMB: 0.5,
+        maxWidthOrHeight: 1024,
+        useWebWorker: true,
+      });
+
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}.${fileExt}`;
       const filePath = `cars/${fileName}`; // Folder di bucket Supabase
 
       const { error: uploadError } = await supabase.storage
         .from('images') // Ganti dengan nama bucket kamu
-        .upload(filePath, file);
+        .upload(filePath, compressedFile);
 
       if (uploadError) {
         alert('Upload gagal: ' + uploadError.message);
@@ -120,7 +128,7 @@ export default function AddCar() {
       {form.image && (
         <div style={{ marginBottom: 12 }}>
           <p>Preview:</p>
-          <img src={form.image} alt="Preview" style={{ maxWidth: 300 }} />
+          <img src={form.image} alt="Preview" style={{ maxWidth: 300, borderRadius: 8 }} />
         </div>
       )}
       <textarea
