@@ -91,5 +91,21 @@ th{
 }
 
 td {
-  @apply text-sm md:text-base;
+  @apply text-sm md:text-base text-center;
+}
+tr {
+  @apply text-center
+}
+
+@keyframes animasiSembul {
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animasiSembul {
+  animation: animasiSembul 0.5s ease-in-out forwards;
 }

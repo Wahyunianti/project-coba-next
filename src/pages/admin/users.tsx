@@ -1,20 +1,33 @@
 import AdminLayout from '@/pages/admin/index';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { IoMdAddCircleOutline } from "react-icons/io";
 import { RiCloseCircleFill } from "react-icons/ri";
-import { useRouter } from 'next/router';
 import { supabase } from '@/lib/supabase';
 import bcrypt from 'bcryptjs';
 import imageCompression from 'browser-image-compression';
+import ModalSuccess from '@/components/ModalSuccess';
+import ModalTambah from '@/components/ModalTambah';
 
 
 
 export default function Users() {
   const [showModal, setShowModal] = useState(false);
-  const [nama, setNama] = useState('');
-  const [email, setEmail] = useState('');
-  const [fileName, setFileName] = useState('');
+  const [showSuccess, setShowSuccess] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [adminns, setAdmin] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetchCars();
+  }, []);
+
+  const fetchCars = async () => {
+    const { data, error } = await supabase.from('admins').select('*').order('created_at', { ascending: false });
+    if (error) {
+      console.error(error);
+    } else {
+      setAdmin(data);
+    }
+  };
 
   const [form, setForm] = useState({
     username: '',
@@ -25,61 +38,61 @@ export default function Users() {
     imagePath: '',
   });
 
-  const router = useRouter();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [profil, setProfil] = useState('');
-  const [address, setAddress] = useState('');
-  const [phone, setPhone] = useState('');
-
+  const showSuccessModal = () => {
+    setShowSuccess(true);
+    setTimeout(() => {
+      setShowSuccess(false);
+      setShowModal(false);
+      setForm({
+        username: '',
+        password: '',
+        profil: '',
+        address: '',
+        phone: '',
+        imagePath: '',
+      });
+      fetchCars();
+    }, 2000);
+  };
 
   const users = [
     { id: 1, nama: 'John Doe', email: 'john@example.com' },
     { id: 2, nama: 'Jane Smith', email: 'jane@example.com' },
     { id: 3, nama: 'Alice Johnson', email: 'alice@example.com' },
-    { id: 3, nama: 'Alice Johnson', email: 'alice@example.com' },
-    { id: 3, nama: 'Alice Johnson', email: 'alice@example.com' },
-    { id: 3, nama: 'Alice Johnson', email: 'alice@example.com' },
-    { id: 3, nama: 'Alice Johnson', email: 'alice@example.com' },
-    { id: 3, nama: 'Alice Johnson', email: 'alice@example.com' },
-    { id: 3, nama: 'Alice Johnson', email: 'alice@example.com' },
-    { id: 3, nama: 'Alice Johnson', email: 'alice@example.com' },
-    { id: 3, nama: 'Alice Johnson', email: 'alice@example.com' },
-    { id: 3, nama: 'Alice Johnson', email: 'alice@example.com' },
-    { id: 3, nama: 'Alice Johnson', email: 'alice@example.com' },
-    { id: 3, nama: 'Alice Johnson', email: 'alice@example.com' },
-    { id: 3, nama: 'Alice Johnson', email: 'alice@example.com' },
-    { id: 3, nama: 'Alice Johnson', email: 'alice@example.com' },
-    { id: 3, nama: 'Alice Johnson', email: 'alice@example.com' },
-    { id: 3, nama: 'Alice Johnson', email: 'alice@example.com' },
-    { id: 3, nama: 'Alice Johnson', email: 'alice@example.com' },
-    { id: 3, nama: 'Alice Johnson', email: 'alice@example.com' },
-    { id: 3, nama: 'Alice Johnson', email: 'alice@example.com' },
-
-
   ];
 
-  const handleTambahUser = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Tambah user:', { nama, email });
-    setShowModal(false);
-    setNama('');
-    setEmail('');
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const submitUser = async (e: React.FormEvent) => {
     e.preventDefault();
-    const hashedPassword = await bcrypt.hash(password, 10);
 
-    const { error } = await supabase
-      .from('admins')
-      .insert([{ username, password: hashedPassword }]);
-
-    if (!error) {
-      router.push('/admin/login');
-    } else {
-      console.error(error.message);
+    if (!form.username || !form.address || !form.phone || !form.password || !form.profil) {
+      alert('Harap lengkapi semua field termasuk gambar');
+      return;
     }
+
+    const hashedPassword = await bcrypt.hash(form.password, 10);
+
+    const { error } = await supabase.from('admins').insert([
+      {
+        username: form.username,
+        password: hashedPassword,
+        profil: form.profil,
+        address: form.address,
+        phone: form.phone,
+      },
+    ]);
+
+    if (error) {
+      alert('Gagal menyimpan data: ' + error.message);
+      return;
+    } else {
+      return showSuccessModal();
+    }
+
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -123,7 +136,7 @@ export default function Users() {
     }
   };
 
- const handleRemoveImage = async () => {
+  const handleRemoveImage = async () => {
     if (!form.imagePath) {
       setForm(prev => ({ ...prev, profil: '', imagePath: '' }));
       return;
@@ -155,17 +168,28 @@ export default function Users() {
             <thead>
               <tr className="bg-yellow-100 text-left">
                 <th className="px-4 py-2 border">#</th>
+                <th className="px-4 py-2 border">Profil</th>
                 <th className="px-4 py-2 border">Nama</th>
-                <th className="px-4 py-2 border">Email</th>
+                <th className="px-4 py-2 border">Nomor</th>
                 <th className="px-4 py-2 border">Aksi</th>
               </tr>
             </thead>
             <tbody>
-              {users.map((user, index) => (
+              {adminns.map((user: any, index) => (
                 <tr key={user.id} className="hover:bg-gray-50">
                   <td className="px-4 py-2 border">{index + 1}</td>
-                  <td className="px-4 py-2 border">{user.nama}</td>
-                  <td className="px-4 py-2 border">{user.email}</td>
+                  <td className="p-2 border">
+                    {user.profil ?
+                      <img
+                        src={user.profil}
+                        alt="Preview"
+                        style={{ width: 50, height: 50, objectFit: 'cover', borderRadius: 50, border: 'solid', padding: 2, borderWidth: 2, display: 'block' }}
+                      /> : '-'
+                    }
+
+                  </td>
+                  <td className="px-4 py-2 border">{user.username}</td>
+                  <td className="px-4 py-2 border">{user?.phone ?? '-'}</td>
                   <td className="px-4 py-2 border">
                     <button className="text-blue-500 hover:underline mr-3">Edit</button>
                     <button className="text-red-500 hover:underline">Hapus</button>
@@ -176,118 +200,116 @@ export default function Users() {
           </table>
         </div>
       </div>
-      <div
-        className={`fixed inset-0 flex items-center justify-center z-50 transition-opacity duration-300 ${showModal ? 'opacity-100 visible' : 'opacity-0 invisible'
-          }`}
-      >
-        <div className='fixed inset-0 bg-black opacity-30' onClick={() => setShowModal(false)}>
-        </div>
-        <div className=" p-6 w-full max-w-lg z-30 relative">
-          <RiCloseCircleFill onClick={() => setShowModal(false)} className='w-8 h-8 absolute right-4 top-4 cursor-pointer' />
-          <div className='w-full h-full shadow-lg bg-white p-5 rounded-lg transition'>
-            <h2 className="text-lg font-bold mb-4">Tambah User</h2>
-            <form onSubmit={handleTambahUser} className="space-y-4">
-              <div>
-                <label className="block mb-1 font-medium">Username</label>
-                <input
-                  type="text"
-                  placeholder='Username'
-                  value={nama}
-                  onChange={(e) => setNama(e.target.value)}
-                  className="input-text"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block mb-1 font-medium">Password</label>
-                <input
-                  type="text"
-                  placeholder='Password'
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="input-text"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block mb-2 text-sm font-semibold text-gray-700">Foto Profil</label>
 
-                <div className="relative flex items-center px-7 py-3 justify-center w-full min-h-32 h-min border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-black">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  />
-                        {form.profil ? (
-        <div style={{ position: 'relative', display: 'inline-block'}}>
-          <img
-            src={form.profil}
-            alt="Preview"
-            style={{ maxWidth: 300, paddingInline: 20, borderRadius: 8, display: 'block' }}
-          />
-          <button
-            type="button"
-            onClick={handleRemoveImage}
-            style={{
-              position: 'absolute',
-              top: -10,
-              right: 5,
-              background: 'rgba(0,0,0,0.5)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '50%',
-              width: 24,
-              height: 24,
-              cursor: 'pointer',
-            }}
-          >
-            ×
-          </button>
-        </div>
-      ) : uploading ? (<><p>Loading...</p></>) : (<><p>Klik untuk mengunggah gambar</p></>)}
 
-                </div>
+      {/* Modal Tambah User  */}
 
-                {fileName && (
-                  <p className="mt-2 text-sm text-green-600 font-medium">✅ {fileName}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block mb-1 font-medium">Alamat</label>
-                <input
-                  type="text"
-                  placeholder='Alamat'
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="input-text"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block mb-1 font-medium">No. Handphone</label>
-                <input
-                  type="text"
-                  placeholder='Nomor'
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="input-text"
-                  required
-                />
-              </div>
-              <div className="flex justify-end space-x-2">
-                <button
-                  type="submit"
-                  className="button-primary"
-                >
-                  Simpan
-                </button>
-              </div>
-            </form>
+      <ModalTambah show={showModal} onClose={() => setShowModal(false)} judul="Tambah User">
+        <form onSubmit={submitUser} className="space-y-4">
+          <div>
+            <label className="block mb-1 font-medium">Username</label>
+            <input
+              type="text"
+              placeholder='Username'
+              name="username"
+              value={form.username}
+              onChange={handleChange}
+              className="input-text"
+              required
+            />
           </div>
-        </div>
-      </div>
+          <div>
+            <label className="block mb-1 font-medium">Password</label>
+            <input
+              type="text"
+              placeholder='Password'
+              name="password"
+              value={form.password}
+              onChange={handleChange}
+              className="input-text"
+              required
+            />
+          </div>
+          <div>
+            <label className="block mb-2 text-sm font-semibold text-gray-700">Foto Profil</label>
+
+            <div className="relative flex items-center px-7 py-3 justify-center w-full min-h-32 h-min border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-black">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              />
+              {form.profil ? (
+                <div style={{ position: 'relative', display: 'inline-block' }}>
+                  <img
+                    src={form.profil}
+                    alt="Preview"
+                    style={{ maxWidth: 300, paddingInline: 20, borderRadius: 8, display: 'block' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    style={{
+                      position: 'absolute',
+                      top: -10,
+                      right: 5,
+                      background: 'rgba(0,0,0,0.5)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '50%',
+                      width: 24,
+                      height: 24,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
+              ) : uploading ? (<><p>Loading...</p></>) : (<><p>Klik untuk mengunggah gambar</p></>)}
+
+            </div>
+
+          </div>
+
+          <div>
+            <label className="block mb-1 font-medium">Alamat</label>
+            <input
+              type="text"
+              placeholder='Alamat'
+              name="address"
+              value={form.address}
+              onChange={handleChange}
+              className="input-text"
+              required
+            />
+          </div>
+          <div>
+            <label className="block mb-1 font-medium">No. Handphone</label>
+            <input
+              type="text"
+              placeholder='Nomor'
+              name="phone"
+              value={form.phone}
+              onChange={handleChange}
+              className="input-text"
+              required
+            />
+          </div>
+          <div className="flex justify-end space-x-2">
+            <button
+              type="submit"
+              className="button-primary"
+            >
+              Simpan
+            </button>
+          </div>
+        </form>
+      </ModalTambah>
+
+      {/* Modal Success  */}
+
+      <ModalSuccess show={showSuccess} onClose={() => setShowSuccess(false)} message="Data Berhasil Disimpan!" />
     </AdminLayout>
   );
 }
