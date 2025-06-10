@@ -10,14 +10,35 @@ export default function AddCar() {
     original_price: '',
     promo_price: '',
     image: '',
+    imagePath: '',
     description: '',
   });
+
   const [uploading, setUploading] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  const handleRemoveImage = async () => {
+    if (!form.imagePath) {
+      setForm(prev => ({ ...prev, image: '', imagePath: '' }));
+      return;
+    }
+
+    const { error } = await supabase.storage
+      .from('images')
+      .remove([form.imagePath]);
+
+    if (error) {
+      alert('Gagal menghapus gambar: ' + error.message);
+      return;
+    }
+
+    setForm(prev => ({ ...prev, image: '', imagePath: '' }));
+  };
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -31,7 +52,6 @@ export default function AddCar() {
     setUploading(true);
 
     try {
-      // Kompresi gambar
       const compressedFile = await imageCompression(file, {
         maxSizeMB: 0.5,
         maxWidthOrHeight: 1024,
@@ -40,10 +60,10 @@ export default function AddCar() {
 
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}.${fileExt}`;
-      const filePath = `cars/${fileName}`; // Folder di bucket Supabase
+      const filePath = `cars/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
-        .from('images') // Ganti dengan nama bucket kamu
+        .from('images')
         .upload(filePath, compressedFile);
 
       if (uploadError) {
@@ -52,7 +72,12 @@ export default function AddCar() {
       }
 
       const { data } = supabase.storage.from('images').getPublicUrl(filePath);
-      setForm(prev => ({ ...prev, image: data.publicUrl }));
+
+      setForm(prev => ({
+        ...prev,
+        image: data.publicUrl,
+        imagePath: filePath,
+      }));
     } catch (error) {
       console.error(error);
       alert('Upload gagal');
@@ -60,6 +85,7 @@ export default function AddCar() {
       setUploading(false);
     }
   };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -126,11 +152,33 @@ export default function AddCar() {
         style={{ display: 'block', marginBottom: 12 }}
       />
       {form.image && (
-        <div style={{ marginBottom: 12 }}>
-          <p>Preview:</p>
-          <img src={form.image} alt="Preview" style={{ maxWidth: 300, borderRadius: 8 }} />
+        <div style={{ position: 'relative', display: 'inline-block', marginBottom: 12 }}>
+          <img
+            src={form.image}
+            alt="Preview"
+            style={{ maxWidth: 300, borderRadius: 8, display: 'block' }}
+          />
+          <button
+            type="button"
+            onClick={handleRemoveImage}
+            style={{
+              position: 'absolute',
+              top: 5,
+              right: 5,
+              background: 'rgba(0,0,0,0.5)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '50%',
+              width: 24,
+              height: 24,
+              cursor: 'pointer',
+            }}
+          >
+            ×
+          </button>
         </div>
       )}
+
       <textarea
         name="description"
         placeholder="Deskripsi"
