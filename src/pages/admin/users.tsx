@@ -1,24 +1,43 @@
 import AdminLayout from '@/pages/admin/index';
 import { useState, useEffect } from 'react';
 import { IoMdAddCircleOutline } from "react-icons/io";
-import { RiCloseCircleFill } from "react-icons/ri";
 import { supabase } from '@/lib/supabase';
 import bcrypt from 'bcryptjs';
 import imageCompression from 'browser-image-compression';
 import ModalSuccess from '@/components/ModalSuccess';
 import ModalTambah from '@/components/ModalTambah';
-
+import ModalConfirm from '@/components/ModalConfirm';
+import { RiEdit2Fill } from "react-icons/ri";
+import { RiDeleteBin5Fill } from "react-icons/ri";
 
 
 export default function Users() {
   const [showModal, setShowModal] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [adminns, setAdmin] = useState<any[]>([]);
+  const [isEdit, setIsEdit] = useState(false);
+  const [editId, setEditId] = useState<number | null>(null);
+  const [delId, setDelId] = useState<number | null>(null);
+
 
   useEffect(() => {
     fetchCars();
-  }, []);
+    if (!showModal) {
+      setForm({
+        username: '',
+        password: '',
+        profil: '',
+        address: '',
+        phone: '',
+        imagePath: '',
+      });
+      setIsEdit(false);
+      setEditId(null);
+    }
+  }, [showModal]);
 
   const fetchCars = async () => {
     const { data, error } = await supabase.from('admins').select('*').order('created_at', { ascending: false });
@@ -26,6 +45,7 @@ export default function Users() {
       console.error(error);
     } else {
       setAdmin(data);
+      setLoading(false);
     }
   };
 
@@ -42,7 +62,6 @@ export default function Users() {
     setShowSuccess(true);
     setTimeout(() => {
       setShowSuccess(false);
-      setShowModal(false);
       setForm({
         username: '',
         password: '',
@@ -55,11 +74,20 @@ export default function Users() {
     }, 2000);
   };
 
-  const users = [
-    { id: 1, nama: 'John Doe', email: 'john@example.com' },
-    { id: 2, nama: 'Jane Smith', email: 'jane@example.com' },
-    { id: 3, nama: 'Alice Johnson', email: 'alice@example.com' },
-  ];
+  const handleEdit = (user: any) => {
+    setForm({
+      username: user.username,
+      password: '',
+      profil: user.profil,
+      address: user.address,
+      phone: user.phone,
+      imagePath: '',
+    });
+    setEditId(user.id);
+    setIsEdit(true);
+    setShowModal(true);
+  };
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -69,31 +97,42 @@ export default function Users() {
   const submitUser = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!form.username || !form.address || !form.phone || !form.password || !form.profil) {
+    if (!form.username || !form.address || !form.phone || (!isEdit && !form.password) || !form.profil) {
       alert('Harap lengkapi semua field termasuk gambar');
       return;
     }
 
-    const hashedPassword = await bcrypt.hash(form.password, 10);
+    let hashedPassword = '';
+    if (!isEdit) {
+      hashedPassword = await bcrypt.hash(form.password, 10);
+    }
 
-    const { error } = await supabase.from('admins').insert([
-      {
-        username: form.username,
-        password: hashedPassword,
-        profil: form.profil,
-        address: form.address,
-        phone: form.phone,
-      },
-    ]);
+    const payload = {
+      username: form.username,
+      profil: form.profil,
+      address: form.address,
+      phone: form.phone,
+      ...(isEdit ? {} : { password: hashedPassword }),
+    };
+
+    let error;
+    if (isEdit && editId) {
+      ({ error } = await supabase.from('admins').update(payload).eq('id', editId));
+    } else {
+      ({ error } = await supabase.from('admins').insert([payload]));
+    }
 
     if (error) {
       alert('Gagal menyimpan data: ' + error.message);
       return;
-    } else {
-      return showSuccessModal();
     }
 
+    setShowModal(false);
+    showSuccessModal();
+    setIsEdit(false);
+    setEditId(null);
   };
+
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
@@ -154,6 +193,16 @@ export default function Users() {
     setForm(prev => ({ ...prev, profil: '', imagePath: '' }));
   };
 
+  const handleDelete = async () => {
+    const { error } = await supabase.from('admins').delete().eq('id', delId);
+    if (error) {
+      alert('Gagal menghapus user: ' + error.message);
+      return;
+    }
+
+    fetchCars();
+  };
+
   return (
     <AdminLayout>
       <div className='flex flex-row items-center justify-between mb-5'>
@@ -163,48 +212,64 @@ export default function Users() {
         >Tambah User <span><IoMdAddCircleOutline className='w-5 h-5' /></span></button>
       </div>
       <div className='w-full h-auto flex flex-col relative bg-white rounded-lg border border-gray-300 p-5'>
-        <div className='block w-full overflow-x-scroll'>
-          <table className="min-w-full table-auto border-collapse">
-            <thead>
-              <tr className="bg-yellow-100 text-left">
-                <th className="px-4 py-2 border">#</th>
-                <th className="px-4 py-2 border">Profil</th>
-                <th className="px-4 py-2 border">Nama</th>
-                <th className="px-4 py-2 border">Nomor</th>
-                <th className="px-4 py-2 border">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {adminns.map((user: any, index) => (
-                <tr key={user.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-2 border">{index + 1}</td>
-                  <td className="p-2 border">
-                    {user.profil ?
-                      <img
-                        src={user.profil}
-                        alt="Preview"
-                        style={{ width: 50, height: 50, objectFit: 'cover', borderRadius: 50, border: 'solid', padding: 2, borderWidth: 2, display: 'block' }}
-                      /> : '-'
-                    }
-
-                  </td>
-                  <td className="px-4 py-2 border">{user.username}</td>
-                  <td className="px-4 py-2 border">{user?.phone ?? '-'}</td>
-                  <td className="px-4 py-2 border">
-                    <button className="text-blue-500 hover:underline mr-3">Edit</button>
-                    <button className="text-red-500 hover:underline">Hapus</button>
-                  </td>
+        <div className='block w-full overflow-x-auto scrollbar-hide border-x border-slate-400'>
+          {loading ?
+            <div className='flex flex-row gap-3 items-center justify-center w-full h-100'>
+              <p className='text-center text-gray-500'>Loading...
+              </p>
+              <svg className="mr-3 -ml-1 size-5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" ></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            </div>
+            : <table className="min-w-full table-auto border-collapse">
+              <thead>
+                <tr className="text-left">
+                  <th className="px-4 py-2 border">#</th>
+                  <th className="px-4 py-2 border">Profil</th>
+                  <th className="px-4 py-2 border">Nama</th>
+                  <th className="px-4 py-2 border">Alamat</th>
+                  <th className="px-4 py-2 border">Nomor</th>
+                  <th className="px-4 py-2 border">Aksi</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {adminns.map((user: any, index) => (
+                  <tr key={user.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-2 border">{index + 1}</td>
+                    <td className="p-2 border">
+                      {user.profil ?
+                        <img
+                          src={user.profil}
+                          alt="Preview"
+                          style={{ width: 50, height: 50, objectFit: 'cover', borderRadius: 50, border: 'solid', padding: 2, borderWidth: 2, display: 'block' }}
+                        /> : '-'
+                      }
+
+                    </td>
+                    <td className="px-4 py-2 border">{user.username}</td>
+                    <td className="px-4 py-2 border">{user.address}</td>
+                    <td className="px-4 py-2 border">{user?.phone ?? '-'}</td>
+                    <td className="px-4 py-2 border">
+                      <div className=' h-full flex flex-row items-center gap-3'>
+                        <button className="text-blue-500 hover:underline mr-3"
+                          onClick={() => handleEdit(user)}
+                        ><RiEdit2Fill className='w-5 h-5 text-black' /></button>
+                        <button
+                          onClick={() => { setDelId(user.id); setShowConfirm(true) }}
+                          className="text-red-500 hover:underline"><RiDeleteBin5Fill className='w-5 h-5 text-black' /></button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          }
+          {!loading && adminns.length === 0 && <p className='text-center text-gray-500'>Tidak ada data user</p>}
+
         </div>
       </div>
 
 
       {/* Modal Tambah User  */}
-
-      <ModalTambah show={showModal} onClose={() => setShowModal(false)} judul="Tambah User">
+      <ModalTambah show={showModal} onClose={() => setShowModal(false)} judul={isEdit ? "Edit User" : "Tambah User"}>
         <form onSubmit={submitUser} className="space-y-4">
           <div>
             <label className="block mb-1 font-medium">Username</label>
@@ -227,7 +292,7 @@ export default function Users() {
               value={form.password}
               onChange={handleChange}
               className="input-text"
-              required
+              required={!isEdit}
             />
           </div>
           <div>
@@ -245,7 +310,7 @@ export default function Users() {
                   <img
                     src={form.profil}
                     alt="Preview"
-                    style={{ maxWidth: 300, paddingInline: 20, borderRadius: 8, display: 'block' }}
+                    style={{ maxWidth: 200, paddingInline: 20, borderRadius: 8, display: 'block' }}
                   />
                   <button
                     type="button"
@@ -308,7 +373,8 @@ export default function Users() {
       </ModalTambah>
 
       {/* Modal Success  */}
-
+      <ModalConfirm
+        show={showConfirm} onClose={() => setShowConfirm(false)} onConfirm={() => handleDelete()} />
       <ModalSuccess show={showSuccess} onClose={() => setShowSuccess(false)} message="Data Berhasil Disimpan!" />
     </AdminLayout>
   );
