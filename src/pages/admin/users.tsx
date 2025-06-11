@@ -236,11 +236,14 @@ export default function Users() {
                     <td className="px-4 py-2 border-y">{index + 1}</td>
                     <td className="p-2 border">
                       {user.profil ?
-                        <img
-                          src={user.profil}
-                          alt="Preview"
-                          style={{ width: 50, height: 50, objectFit: 'cover', borderRadius: 50, border: 'solid', padding: 2, borderWidth: 2, display: 'block' }}
-                        /> : '-'
+                        <div className='grid place-items-center w-full h-full'>
+                          <img
+                            src={user.profil}
+                            alt="Preview"
+                            style={{ width: 50, height: 50, objectFit: 'cover', borderRadius: 50, border: 'solid', padding: 2, borderWidth: 2, display: 'block' }}
+                          />
+                        </div>
+                        : '-'
                       }
 
                     </td>
