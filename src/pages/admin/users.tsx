@@ -212,7 +212,7 @@ export default function Users() {
         >Tambah User <span><IoMdAddCircleOutline className='w-5 h-5' /></span></button>
       </div>
       <div className='w-full h-auto flex flex-col relative bg-white rounded-lg border border-gray-300 p-5'>
-        <div className='block w-full overflow-x-auto scrollbar-hide border-x border-slate-400'>
+        <div className={`block w-full overflow-x-auto scrollbar-hide ${loading ? 'border-none' : 'border-x'} border-black`}>
           {loading ?
             <div className='flex flex-row gap-3 items-center justify-center w-full h-100'>
               <p className='text-center text-gray-500'>Loading...
@@ -222,18 +222,18 @@ export default function Users() {
             : <table className="min-w-full table-auto border-collapse">
               <thead>
                 <tr className="text-left">
-                  <th className="px-4 py-2 border">#</th>
+                  <th className="px-4 py-2 border-y">#</th>
                   <th className="px-4 py-2 border">Profil</th>
                   <th className="px-4 py-2 border">Nama</th>
                   <th className="px-4 py-2 border">Alamat</th>
                   <th className="px-4 py-2 border">Nomor</th>
-                  <th className="px-4 py-2 border">Aksi</th>
+                  <th className="px-4 py-2 border-y">Aksi</th>
                 </tr>
               </thead>
               <tbody>
                 {adminns.map((user: any, index) => (
                   <tr key={user.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-2 border">{index + 1}</td>
+                    <td className="px-4 py-2 border-y">{index + 1}</td>
                     <td className="p-2 border">
                       {user.profil ?
                         <img
@@ -247,7 +247,7 @@ export default function Users() {
                     <td className="px-4 py-2 border">{user.username}</td>
                     <td className="px-4 py-2 border">{user.address}</td>
                     <td className="px-4 py-2 border">{user?.phone ?? '-'}</td>
-                    <td className="px-4 py-2 border">
+                    <td className="px-4 py-2 border-y">
                       <div className=' h-full flex flex-row items-center gap-3'>
                         <button className="text-blue-500 hover:underline mr-3"
                           onClick={() => handleEdit(user)}
