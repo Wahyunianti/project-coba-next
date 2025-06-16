@@ -6,7 +6,6 @@ import { LuUsers } from "react-icons/lu";
 import { PiCarBold } from "react-icons/pi";
 import { AiOutlineComment } from "react-icons/ai";
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
 import Cookies from 'js-cookie';
 import Link from 'next/link';
 import { IoSettingsOutline } from "react-icons/io5";
@@ -18,9 +17,6 @@ import { TbLogout } from "react-icons/tb";
 export default function AdminIndexRedirect({ children }: { children: ReactNode }) {
   const router = useRouter();
   const path = router.pathname;
-  const [name, setName] = useState<string>('Admin');
-  const [image, setImage] = useState<string>('https://cdn.pixabay.com/photo/2019/08/11/18/59/icon-4399701_640.png');
-
 
   const username = Cookies.get('username');
   const profil = Cookies.get('profil');
@@ -31,13 +27,6 @@ export default function AdminIndexRedirect({ children }: { children: ReactNode }
     Cookies.remove('isLoggedIn');
     router.push('/admin/login');
   };
-
-  useEffect(() => {
-    if (username && profil) {
-      setName(username);
-      setImage(profil)
-    }
-  }, []);
 
   return (
     <div className='relative box-border p-0 m-0 w-full min-h-screen h-auto transition-all duration-300 ease-in-out overflow-hidden'>
@@ -127,11 +116,11 @@ export default function AdminIndexRedirect({ children }: { children: ReactNode }
                         </Link>
 
                         <Link
-                          key={'/admin/mobil'}
-                          href="/admin/mobil"
+                          key={'/admin/mobils'}
+                          href="/admin/mobils"
                           prefetch={true}
                           data-tooltip-id="my-tooltip" data-tooltip-content="Data Mobil"
-                          className={`h-full cursor-pointer rounded-full grid place-items-center hover-link transition-all hover:bg-black ${path === '/admin/mobil' ? 'active-link' : ''
+                          className={`h-full cursor-pointer rounded-full grid place-items-center hover-link transition-all hover:bg-black ${path === '/admin/mobils' ? 'active-link' : ''
                             }`}>
                           <PiCarBold className='text-2xl text-black block md:hidden icon-area' />
                           <h2 className='text-black font-bold text-lg hidden md:block'>Mobil</h2>
@@ -162,11 +151,11 @@ export default function AdminIndexRedirect({ children }: { children: ReactNode }
                     </div>
                    </div>
                   
-                    <h2 className='w-auto grid place-items-center h-full'>{name}</h2>
+                    <h2 className='w-auto grid place-items-center h-full'>{username}</h2>
                     <div className='w-min'>
                       <div className="w-20 h-20 bg-white rounded-full overflow-hidden border border-gray-300 grid place-items-center cursor-pointer">
                         <img
-                          src={image}
+                          src={profil}
                           alt="profil"
                           className="object-cover w-17 h-17 rounded-full"
                           data-tooltip-id="my-tooltip" data-tooltip-content="Photo Profile"
@@ -180,7 +169,7 @@ export default function AdminIndexRedirect({ children }: { children: ReactNode }
               </div>
               <div className='w-auto h-20  bg-slate-50 fixed top-0 left-0 right-0 md:right-7 z-10'>
                 <div className='w-full flex flex-row justify-center items-center h-10 gap-3 px-3 md:px-0'>
-                  <h1 className='text-center mt-3 block md:hidden'>{name}</h1>
+                  <h1 className='text-center mt-3 block md:hidden'>{username}</h1>
                   <RiEdit2Fill className='text-2xl mt-2 text-black block md:hidden' />
                 </div>
               </div>

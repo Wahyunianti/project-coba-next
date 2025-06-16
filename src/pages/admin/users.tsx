@@ -209,7 +209,7 @@ export default function Users() {
           onClick={() => setShowModal(true)}
         >Tambah User <span><IoMdAddCircleOutline className='w-5 h-5' /></span></button>
       </div>
-      <div className='w-full h-auto flex flex-col relative bg-white rounded-lg border border-gray-300 p-5'>
+      <div className='w-full h-auto flex flex-col relative bg-white rounded-lg border border-gray-300 p-5 py-10'>
         <div className={`block w-full overflow-x-auto scrollbar-hide ${loading ? 'border-none' : 'border-x'} border-black`}>
           {loading ?
             <div className='flex flex-row gap-3 items-center justify-center w-full h-100'>
