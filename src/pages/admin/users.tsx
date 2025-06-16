@@ -270,7 +270,7 @@ export default function Users() {
 
 
       {/* Modal Tambah User  */}
-      <ModalTambah show={showModal} onClose={() => setShowModal(false)} judul={isEdit ? "Edit User" : "Tambah User"}>
+      <ModalTambah show={showModal} onClose={() => form.profil ? setShowModal(false) : undefined} judul={isEdit ? "Edit User" : "Tambah User"}>
         <form onSubmit={submitUser} className="space-y-4">
           <div>
             <label className="block mb-1 font-medium">Username</label>
