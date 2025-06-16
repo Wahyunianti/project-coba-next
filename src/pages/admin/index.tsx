@@ -1,5 +1,5 @@
 import { GetServerSidePropsContext } from 'next';
-import { ReactNode, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import Image from "next/image";
 import { MdOutlineHomeWork } from "react-icons/md";
 import { LuUsers } from "react-icons/lu";
@@ -18,9 +18,15 @@ export default function AdminIndexRedirect({ children }: { children: ReactNode }
   const router = useRouter();
   const path = router.pathname;
 
-  const username = Cookies.get('username');
-  const profil = Cookies.get('profil');
+  const [username, setUsername] = useState<string | undefined>();
+  const [profil, setProfil] = useState<string | undefined>();
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setUsername(Cookies.get('username'));
+      setProfil(Cookies.get('profil'));
+    }
+  }, []);
 
   const handleLogout = () => {
     console.log(username, profil);
@@ -143,14 +149,14 @@ export default function AdminIndexRedirect({ children }: { children: ReactNode }
 
                   </div>
                   <div className='hidden md:flex w-min flex-row gap-3 justify-end items-center h-full overflow-hidden px-3'>
-                   <div className='w-min'>
-<div
-                      data-tooltip-id="my-tooltip" data-tooltip-content="Setting"
-                      className='w-14 h-14 bg-white hover:bg-slate-50 rounded-full  grid place-items-center border cursor-pointer border-gray-300'>
-                      <IoSettingsOutline className='text-3xl text-black icon-sidebar hover:animate-spin' />
+                    <div className='w-min'>
+                      <div
+                        data-tooltip-id="my-tooltip" data-tooltip-content="Setting"
+                        className='w-14 h-14 bg-white hover:bg-slate-50 rounded-full  grid place-items-center border cursor-pointer border-gray-300'>
+                        <IoSettingsOutline className='text-3xl text-black icon-sidebar hover:animate-spin' />
+                      </div>
                     </div>
-                   </div>
-                  
+
                     <h2 className='w-auto grid place-items-center h-full'>{username}</h2>
                     <div className='w-min'>
                       <div className="w-20 h-20 bg-white rounded-full overflow-hidden border border-gray-300 grid place-items-center cursor-pointer">
