@@ -200,7 +200,7 @@ export default function TMobils() {
                     <div className='w-full h-min place-items-center grid grid-cols-1 md:grid-cols-4 gap-7 px-10 py-5'>
                         {cars.map((car: any, index) => (
                             <div key={car.id} className='w-58 h-75  flex flex-col gap-2 items-center justify-center'>
-                                <div className="w-38 h-45 bg-white rounded-md overflow-hidden border border-gray-300 grid place-items-center cursor-pointer">
+                                <div className="w-38 h-45 bg-white p-2 rounded-md overflow-hidden border border-gray-300 grid place-items-center cursor-pointer">
                                     <img
                                         src={car.image}
                                         alt="profil"
@@ -233,7 +233,7 @@ export default function TMobils() {
 
             </div>
 
-            {/* Modal Tambah User  */}
+            {/* Modal Tambah  */}
             <ModalTambah show={showModal} onClose={() => setShowModal(false)} judul={isEdit ? "Edit Mobil" : "Tambah Mobil"}>
                 <form onSubmit={submitMobil} className="space-y-4">
                     <div>
