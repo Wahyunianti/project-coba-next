@@ -1,11 +1,12 @@
 import { GetServerSidePropsContext } from 'next';
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 import Image from "next/image";
 import { MdOutlineHomeWork } from "react-icons/md";
 import { LuUsers } from "react-icons/lu";
 import { PiCarBold } from "react-icons/pi";
 import { AiOutlineComment } from "react-icons/ai";
 import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 import Cookies from 'js-cookie';
 import Link from 'next/link';
 import { IoSettingsOutline } from "react-icons/io5";
@@ -17,17 +18,32 @@ import { TbLogout } from "react-icons/tb";
 export default function AdminIndexRedirect({ children }: { children: ReactNode }) {
   const router = useRouter();
   const path = router.pathname;
+  const [name, setName] = useState<string>('Admin');
+  const [image, setImage] = useState<string>('https://cdn.pixabay.com/photo/2019/08/11/18/59/icon-4399701_640.png');
+
+
+  const username = Cookies.get('username');
+  const profil = Cookies.get('profil');
+
 
   const handleLogout = () => {
+    console.log(username, profil);
     Cookies.remove('isLoggedIn');
     router.push('/admin/login');
   };
 
+  useEffect(() => {
+    if (username && profil) {
+      setName(username);
+      setImage(profil)
+    }
+  }, []);
+
   return (
     <div className='relative box-border p-0 m-0 w-full min-h-screen h-auto transition-all duration-300 ease-in-out overflow-hidden'>
       <div className='absolute md:hidden grid place-items-center bottom-5 right-5 shadow-md z-100 bg-black w-16 h-16 rounded-full'
-      data-tooltip-id="my-tooltip" data-tooltip-content="Logout"
-      onClick={handleLogout}
+        data-tooltip-id="my-tooltip" data-tooltip-content="Logout"
+        onClick={handleLogout}
       >
         <TbLogout className='text-2xl text-white block md:hidden' />
       </div>
@@ -84,7 +100,7 @@ export default function AdminIndexRedirect({ children }: { children: ReactNode }
 
               </div>
               <div className='w-full h-20 mb-5 bg-slate-50 sticky top-0 z-15'>
-                <div className='flex w-full flex-row h-full '>
+                <div className='flex w-full justify-between flex-row h-full '>
                   <div className='w-full md:w-4/5 h-full px-3'>
                     <div className='w-full h-full bg-white rounded-full overflow-hidden border border-gray-300'>
                       <div className='w-full md:w-[70%] grid grid-cols-4 gap-3 h-full p-3 px-5'>
@@ -137,30 +153,34 @@ export default function AdminIndexRedirect({ children }: { children: ReactNode }
                     </div>
 
                   </div>
-                  <div className=' hidden md:flex flex-row gap-3 justify-end items-center h-full overflow-hidden px-3'>
-                    <div
+                  <div className='hidden md:flex w-min flex-row gap-3 justify-end items-center h-full overflow-hidden px-3'>
+                   <div className='w-min'>
+<div
                       data-tooltip-id="my-tooltip" data-tooltip-content="Setting"
                       className='w-14 h-14 bg-white hover:bg-slate-50 rounded-full  grid place-items-center border cursor-pointer border-gray-300'>
                       <IoSettingsOutline className='text-3xl text-black icon-sidebar hover:animate-spin' />
                     </div>
-                    <h2 className='max-w-[80px]'>Anti Meong</h2>
-                    <div className="w-20 h-20 bg-white rounded-full overflow-hidden border border-gray-300 grid place-items-center cursor-pointer">
-                      <img
-                        src="https://zuszaxdwlcupogxpfwhf.supabase.co/storage/v1/object/public/images/cars/1748406348110.png"
-                        alt="profil"
-                        className="object-cover w-17 h-17 rounded-full"
-                        data-tooltip-id="my-tooltip" data-tooltip-content="Photo Profile"
-                      />
-                      <Tooltip id="my-tooltip" />
+                   </div>
+                  
+                    <h2 className='w-auto grid place-items-center h-full'>{name}</h2>
+                    <div className='w-min'>
+                      <div className="w-20 h-20 bg-white rounded-full overflow-hidden border border-gray-300 grid place-items-center cursor-pointer">
+                        <img
+                          src={image}
+                          alt="profil"
+                          className="object-cover w-17 h-17 rounded-full"
+                          data-tooltip-id="my-tooltip" data-tooltip-content="Photo Profile"
+                        />
+                        <Tooltip id="my-tooltip" />
+                      </div>
                     </div>
-
                   </div>
 
                 </div>
               </div>
               <div className='w-auto h-20  bg-slate-50 fixed top-0 left-0 right-0 md:right-7 z-10'>
                 <div className='w-full flex flex-row justify-center items-center h-10 gap-3 px-3 md:px-0'>
-                  <h1 className='text-center mt-3 block md:hidden'>Anti Meong</h1>
+                  <h1 className='text-center mt-3 block md:hidden'>{name}</h1>
                   <RiEdit2Fill className='text-2xl mt-2 text-black block md:hidden' />
                 </div>
               </div>

@@ -10,7 +10,6 @@ import ModalConfirm from '@/components/ModalConfirm';
 import { RiEdit2Fill } from "react-icons/ri";
 import { RiDeleteBin5Fill } from "react-icons/ri";
 
-
 export default function Users() {
   const [showModal, setShowModal] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -22,9 +21,8 @@ export default function Users() {
   const [editId, setEditId] = useState<number | null>(null);
   const [delId, setDelId] = useState<number | null>(null);
 
-
   useEffect(() => {
-    fetchCars();
+    fetchAdmin();
     if (!showModal) {
       setForm({
         username: '',
@@ -39,7 +37,7 @@ export default function Users() {
     }
   }, [showModal]);
 
-  const fetchCars = async () => {
+  const fetchAdmin = async () => {
     const { data, error } = await supabase.from('admins').select('*').order('created_at', { ascending: false });
     if (error) {
       console.error(error);
@@ -70,7 +68,7 @@ export default function Users() {
         phone: '',
         imagePath: '',
       });
-      fetchCars();
+      fetchAdmin();
     }, 2000);
   };
 
@@ -103,7 +101,7 @@ export default function Users() {
     }
 
     let hashedPassword = '';
-    if (!isEdit) {
+    if (!!form.password) {
       hashedPassword = await bcrypt.hash(form.password, 10);
     }
 
@@ -112,7 +110,7 @@ export default function Users() {
       profil: form.profil,
       address: form.address,
       phone: form.phone,
-      ...(isEdit ? {} : { password: hashedPassword }),
+      password: hashedPassword
     };
 
     let error;
@@ -199,8 +197,8 @@ export default function Users() {
       alert('Gagal menghapus user: ' + error.message);
       return;
     }
-
-    fetchCars();
+    setShowConfirm(false)
+    fetchAdmin();
   };
 
   return (
@@ -251,13 +249,13 @@ export default function Users() {
                     <td className="px-4 py-2 border">{user.address}</td>
                     <td className="px-4 py-2 border">{user?.phone ?? '-'}</td>
                     <td className="px-4 py-2 border-y">
-                      <div className=' h-full flex flex-row items-center gap-3'>
-                        <button className="text-blue-500 hover:underline mr-3"
+                      <div className=' h-full w-full flex flex-row items-center justify-center gap-3'>
+                        <button className="text-blue-500 hover:underline mr-3 cursor-pointer"
                           onClick={() => handleEdit(user)}
                         ><RiEdit2Fill className='w-5 h-5 text-black' /></button>
                         <button
                           onClick={() => { setDelId(user.id); setShowConfirm(true) }}
-                          className="text-red-500 hover:underline"><RiDeleteBin5Fill className='w-5 h-5 text-black' /></button>
+                          className="text-red-500 hover:underline cursor-pointer"><RiDeleteBin5Fill className='w-5 h-5 text-black' /></button>
                       </div>
                     </td>
                   </tr>
@@ -300,7 +298,6 @@ export default function Users() {
           </div>
           <div>
             <label className="block mb-2 text-sm font-semibold text-gray-700">Foto Profil</label>
-
             <div className="relative flex items-center px-7 py-3 justify-center w-full min-h-32 h-min border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-black">
               <input
                 type="file"
@@ -335,11 +332,8 @@ export default function Users() {
                   </button>
                 </div>
               ) : uploading ? (<><p>Loading...</p></>) : (<><p>Klik untuk mengunggah gambar</p></>)}
-
             </div>
-
           </div>
-
           <div>
             <label className="block mb-1 font-medium">Alamat</label>
             <input

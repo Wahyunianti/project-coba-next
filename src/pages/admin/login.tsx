@@ -42,16 +42,17 @@ export default function Login() {
 
     Cookies.set('isLoggedIn', 'true', { expires: 1, path: '/' });
     Cookies.set('username', user.username, { path: '/' });
+    Cookies.set('profil', user.profil, { path: '/' });
 
     router.push('/admin/dashboard');
   };
 
   return (
     <>
-      <div className="box-border p-0 m-0 w-full overflow-hidden h-lvh md:h-screen">
+      <div className="box-border p-0 m-0 w-full overflow-hidden ">
 
         <div className="w-full h-dvh bg-gradient-to-tl from-5% from-[#FFCDC2] to-[#FFFFFF] flex items-center justify-center">
-          <div className="z-10">
+          <div className="z-10 absolute w-full h-full">
             <Image
               src="../waves.svg"
               alt="Background"
@@ -74,8 +75,8 @@ export default function Login() {
                 </Image>
               </div>
             </div>
-            <div className="w-full md:w-1/2 h-auto px-10 md:px-15 grid place-items-center">
-              <div className="min-h-180 h-auto bg-white w-full rounded-xl shadow-md ">
+            <div className="w-full md:w-1/2 px-10 md:px-15 grid place-items-center">
+              <div className=" bg-white w-full rounded-xl shadow-md ">
                 <div className="p-7 md:p-10">
                   <h1 className="text-2xl font-bold mb-5">Selamat Datang di Admin Panel Suzuki Alsut</h1>
                   <p className="text-gray-600 mb-5">Silakan masuk untuk mengelola data showroom.</p>
