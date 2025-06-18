@@ -63,7 +63,7 @@ body {
 }
 
 .active-link .icon-area {
-    @apply text-white;
+  @apply text-white;
 }
 
 p {
@@ -86,13 +86,14 @@ h3 {
   @apply text-base md:text-lg font-semibold;
 }
 
-th{
+th {
   @apply text-sm md:text-base font-semibold;
 }
 
 td {
   @apply text-sm md:text-base text-center;
 }
+
 tr {
   @apply text-center
 }
@@ -101,6 +102,7 @@ tr {
   0% {
     transform: scale(0);
   }
+
   100% {
     transform: scale(1);
   }
@@ -108,4 +110,24 @@ tr {
 
 .animasiSembul {
   animation: animasiSembul 0.5s ease-in-out forwards;
+}
+
+.close-button {
+  display: none;
+}
+
+.frame-cars {
+  border: none;
+}
+
+.icon-cars:hover {
+
+  .close-button {
+    display: block;
+  }
+
+  .frame-cars {
+    @apply border-2 border-solid;
+  }
+
 }

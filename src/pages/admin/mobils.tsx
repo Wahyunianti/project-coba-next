@@ -8,6 +8,7 @@ import ModalSuccess from '@/components/ModalSuccess';
 import ModalTambah from '@/components/ModalTambah';
 import ModalConfirm from '@/components/ModalConfirm';
 import { RiDeleteBin5Fill, RiEdit2Fill } from 'react-icons/ri';
+import Link from 'next/link';
 
 export default function TMobils() {
     const [showModal, setShowModal] = useState(false);
@@ -49,8 +50,6 @@ export default function TMobils() {
             setLoading(false);
         }
     };
-
-
 
     const submitMobil = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -211,11 +210,12 @@ export default function TMobils() {
                                 <p className='text-sm font-semibold'>{car.name}</p>
                                 <p>{util.formatRupiah(20000)}</p>
                                 <div className='flex flex-row gap-2'>
-                                    <a
+
+                                    <Link
                                         data-tooltip-id="my-tooltip" data-tooltip-content="Detail Mobil"
-                                        href='' className="button-primary flex flex-row items-center justify-center gap-3">
+                                        href={`/admin/cars/${car.id}`} className="button-primary flex flex-row items-center justify-center gap-3">
                                         Detail
-                                    </a>
+                                    </Link>
                                     <button className="button-primary cursor-pointer"
                                         data-tooltip-id="my-tooltip" data-tooltip-content="Edit Mobil"
                                         onClick={() => handleEdit(car)}

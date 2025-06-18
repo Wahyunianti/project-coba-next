@@ -47,7 +47,7 @@ export default function AdminIndexRedirect({ children }: { children: ReactNode }
           <div className='w-full h-full flex flex-col py-10 bg-black rounded-2xl'>
             <div className='flex flex-row items-center justify-center w-full h-15 gap-3'>
               <Image
-                src="../wheel.svg"
+                src="../../wheel.svg"
                 alt="Mobil"
                 width={100}
                 height={100}
