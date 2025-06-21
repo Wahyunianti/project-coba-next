@@ -10,7 +10,11 @@ class Utilities {
   }
 
   formatRupiah(amount: number): string {
-    return this.formatter.format(amount);
+    return amount.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' });
+  }
+
+  UUIDInt() {
+    return Math.floor(Math.random() * 2_000_000_000);
   }
 }
 

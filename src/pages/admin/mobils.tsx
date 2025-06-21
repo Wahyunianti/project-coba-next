@@ -9,6 +9,10 @@ import ModalTambah from '@/components/ModalTambah';
 import ModalConfirm from '@/components/ModalConfirm';
 import { RiDeleteBin5Fill, RiEdit2Fill } from 'react-icons/ri';
 import Link from 'next/link';
+import { Service } from '@/utilities/service';
+import { PhotoProvider, PhotoView } from 'react-photo-view';
+import 'react-photo-view/dist/react-photo-view.css';
+
 
 export default function TMobils() {
     const [showModal, setShowModal] = useState(false);
@@ -18,10 +22,13 @@ export default function TMobils() {
     const [cars, setCars] = useState<any[]>([]);
     const [isEdit, setIsEdit] = useState(false);
     const [editId, setEditId] = useState<number | null>(null);
-    const [delId, setDelId] = useState<number | null>(null);
+    const [delId, setDelId] = useState<number>(1);
     const [uploading, setUploading] = useState(false);
+    const [imgId, setImgId] = useState<string>('');
+
 
     const util = new Utilities();
+    const service = new Service();
 
     const [form, setForm] = useState({
         name: '',
@@ -41,12 +48,21 @@ export default function TMobils() {
     }, [showModal]);
 
     const fetchMobil = async () => {
-        const { data, error } = await supabase.from('cars').select('*').order('name', { ascending: false });
+        const { data, error } = await supabase.from('cars')
+            .select(`
+    id,
+    name,
+    image,
+    cars_type (
+      id,
+      name,
+      price
+    )
+  `).order('name', { ascending: false });
         if (error) {
             console.error(error);
         } else {
             setCars(data);
-            console.log(cars)
             setLoading(false);
         }
     };
@@ -58,7 +74,6 @@ export default function TMobils() {
             alert('Harap lengkapi semua field termasuk gambar');
             return;
         }
-
 
         const payload = {
             name: form.name,
@@ -119,35 +134,14 @@ export default function TMobils() {
         setUploading(true);
 
         try {
-            const compressedFile = await imageCompression(file, {
-                maxSizeMB: 0.5,
-                maxWidthOrHeight: 1024,
-                useWebWorker: true,
-            });
-
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${Date.now()}.${fileExt}`;
-            const filePath = `cars/${fileName}`;
-
-            const { error: uploadError } = await supabase.storage
-                .from('images')
-                .upload(filePath, compressedFile);
-
-            if (uploadError) {
-                alert('Upload gagal: ' + uploadError.message);
-                return;
-            }
-
-            const { data } = supabase.storage.from('images').getPublicUrl(filePath);
-
-            setForm(prev => ({
+            const { publicUrl, filePath } = await service.uploadImage(file);
+            setForm((prev) => ({
                 ...prev,
-                image: data.publicUrl,
+                image: publicUrl,
                 imagePath: filePath,
             }));
-        } catch (error) {
-            console.error(error);
-            alert('Upload gagal');
+        } catch (error: any) {
+            alert('Upload gagal: ' + error.message);
         } finally {
             setUploading(false);
         }
@@ -155,29 +149,34 @@ export default function TMobils() {
 
     const handleRemoveImage = async () => {
         if (!form.imagePath) {
-            setForm(prev => ({ ...prev, image: '', imagePath: '' }));
+            setForm((prev) => ({ ...prev, image: '', imagePath: '' }));
             return;
         }
 
-        const { error } = await supabase.storage
-            .from('images')
-            .remove([form.imagePath]);
-
-        if (error) {
+        try {
+            await service.removeImage(form.imagePath);
+            setForm((prev) => ({ ...prev, image: '', imagePath: '' }));
+        } catch (error: any) {
             alert('Gagal menghapus gambar: ' + error.message);
-            return;
         }
+    };
 
-        setForm(prev => ({ ...prev, profil: '', imagePath: '' }));
+    const handleDeleteImage = async () => {
+        const publicURLPrefix = 'https://zuszaxdwlcupogxpfwhf.supabase.co/storage/v1/object/public/images/';
+        const filePath = imgId.replace(publicURLPrefix, '');
+
+        try {
+            await service.removeImage(filePath);
+            setForm((prev) => ({ ...prev, image: '', imagePath: '' }));
+        } catch (error: any) {
+            alert('Gagal menghapus gambar: ' + error.message);
+        }
     };
 
     const handleDelete = async () => {
-        const { error } = await supabase.from('cars').delete().eq('id', delId);
-        if (error) {
-            alert('Gagal menghapus mobil: ' + error.message);
-            return;
-        }
-        setShowConfirm(false)
+        const result = await service.deleteData(delId, 'cars');
+        setShowConfirm(false);
+        handleDeleteImage();
         fetchMobil();
     };
 
@@ -196,39 +195,62 @@ export default function TMobils() {
                     <svg className="mr-3 -ml-1 size-5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" ></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                 </div>
                     :
-                    <div className='w-full h-min place-items-center grid grid-cols-1 md:grid-cols-4 gap-7 px-10 py-5'>
-                        {cars.map((car: any, index) => (
-                            <div key={car.id} className='w-58 h-75  flex flex-col gap-2 items-center justify-center'>
-                                <div className="w-38 h-45 bg-white p-2 rounded-md overflow-hidden border border-gray-300 grid place-items-center cursor-pointer">
-                                    <img
-                                        src={car.image}
-                                        alt="profil"
-                                        className="object-contain size-full "
-                                        data-tooltip-id="my-tooltip" data-tooltip-content={car.name}
-                                    />
-                                </div>
-                                <p className='text-sm font-semibold'>{car.name}</p>
-                                <p>{util.formatRupiah(20000)}</p>
-                                <div className='flex flex-row gap-2'>
-
-                                    <Link
-                                        data-tooltip-id="my-tooltip" data-tooltip-content="Detail Mobil"
-                                        href={`/admin/cars/${car.id}`} className="button-primary flex flex-row items-center justify-center gap-3">
-                                        Detail
-                                    </Link>
-                                    <button className="button-primary cursor-pointer"
-                                        data-tooltip-id="my-tooltip" data-tooltip-content="Edit Mobil"
-                                        onClick={() => handleEdit(car)}
-                                    ><RiEdit2Fill className='w-4 h-4 text-white' /></button>
-                                    <button
-                                        onClick={() => { setDelId(car.id); setShowConfirm(true) }}
-                                        data-tooltip-id="my-tooltip" data-tooltip-content="Hapus Mobil"
-                                        className="button-primary cursor-pointer"><RiDeleteBin5Fill className='w-4 h-4 text-white' /></button>
-
-                                </div>
+                    <>
+                        {cars.length === 0 &&
+                            <div className='w-full h-100 grid place-items-center'>
+                                <p className='text-slate-400'>Data Mobil Kosong</p>
                             </div>
-                        ))}
-                    </div>
+                        }
+                        <div className='w-full h-min place-items-center grid grid-cols-1 md:grid-cols-4 gap-7 px-10 py-5'>
+                            {cars.map((car: any, index) => (
+                                <div key={index} className='w-58 h-75  flex flex-col gap-2 items-center justify-center'>
+                                    <div className="w-38 h-45 min-h-min bg-white p-2 rounded-md overflow-hidden border border-gray-300 grid place-items-center cursor-pointer">
+                                        <PhotoProvider>
+                                            <PhotoView src={car.image ?? 'https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif'}>
+                                                <img
+                                                    src={car.image}
+                                                    alt="profil"
+                                                    className="object-contain size-full "
+                                                    data-tooltip-id="my-tooltip" data-tooltip-content={car.name}
+                                                />
+                                            </PhotoView>
+                                        </PhotoProvider>
+                                    </div>
+                                    <p className='text-sm font-semibold'>{car.name}</p>
+
+                                    {car.cars_type?.length > 0 ? (
+                                        <p className='text-center'>
+
+                                            Harga Mulai :{" "}
+                                            {util.formatRupiah(
+                                                Math.min(...car.cars_type.map((type: any) => type.price))
+                                            )}
+                                        </p>
+                                    ) : (
+                                        <p className="text-sm text-gray-400">Belum ada tipe</p>
+                                    )}
+                                    <div className='flex flex-row gap-2'>
+
+                                        <Link
+                                            data-tooltip-id="my-tooltip" data-tooltip-content="Detail Mobil"
+                                            href={`/admin/cars/${car.id}`} className="button-primary flex flex-row items-center justify-center gap-3">
+                                            Detail
+                                        </Link>
+                                        <button className="button-primary cursor-pointer"
+                                            data-tooltip-id="my-tooltip" data-tooltip-content="Edit Mobil"
+                                            onClick={() => handleEdit(car)}
+                                        ><RiEdit2Fill className='w-4 h-4 text-white' /></button>
+                                        <button
+                                            onClick={() => { setDelId(car.id); setShowConfirm(true); setImgId(car.image) }}
+                                            data-tooltip-id="my-tooltip" data-tooltip-content="Hapus Mobil"
+                                            className="button-primary cursor-pointer"><RiDeleteBin5Fill className='w-4 h-4 text-white' /></button>
+
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </>
+
                 }
 
             </div>

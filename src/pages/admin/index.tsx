@@ -67,17 +67,21 @@ export default function AdminIndexRedirect({ children }: { children: ReactNode }
                 <LuUsers className='text-2xl text-white icon-sidebar' />
                 <h3 className='text-base font-semibold text-white icon-sidebar'>Data User</h3>
               </Link>
-              <div className='w-full flex flex-row items-center justify-start gap-3 h-10 menu-sidebar cursor-pointer'>
+              <Link
+                href="/admin/mobils" prefetch={true}
+                className='w-full flex flex-row items-center justify-start gap-3 h-10 menu-sidebar cursor-pointer'>
                 <PiCarBold className='text-2xl text-white icon-sidebar' />
                 <h3 className='text-base font-semibold text-white icon-sidebar'>Data Mobil</h3>
-              </div>
+              </Link>
               <div className='w-full flex flex-row items-center justify-start gap-3 h-10 '>
                 <h3 className='text-base font-normal text-slate-400'>Kelola Landing Page</h3>
               </div>
-              <div className='w-full flex flex-row items-center justify-start gap-3 h-10 menu-sidebar cursor-pointer'>
+              <Link
+                href="/admin/testimonies" prefetch={true}
+                className='w-full flex flex-row items-center justify-start gap-3 h-10 menu-sidebar cursor-pointer'>
                 <AiOutlineComment className='text-2xl text-white icon-sidebar' />
                 <h3 className='text-base font-semibold text-white icon-sidebar'>Testimonials</h3>
-              </div>
+              </Link>
 
             </div>
             <div className='flex flex-col items-center justify-start w-full h-12 gap-4 px-10 '>
