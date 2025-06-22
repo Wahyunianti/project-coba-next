@@ -5,6 +5,7 @@
 
 @import "tailwindcss";
 
+/* Selalu terang */
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -17,13 +18,6 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 html {
   scroll-behavior: smooth;
 }
@@ -34,15 +28,16 @@ body {
   font-family: 'Poppins', sans-serif;
 }
 
+/* scrollbar hidden */
 .scrollbar-hidden::-webkit-scrollbar {
   display: none;
 }
 .scrollbar-hidden {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none;    /* Firefox */
+  -ms-overflow-style: none; 
+  scrollbar-width: none;
 }
 
-
+/* Tailwind apply helpers */
 .input-text {
   @apply w-full bg-white border py-2 px-3 decoration-0 focus-visible:outline-0 rounded-md text-sm md:text-base;
 }
@@ -110,7 +105,7 @@ td {
 }
 
 tr {
-  @apply text-center
+  @apply text-center;
 }
 
 @keyframes animasiSembul {
@@ -136,7 +131,6 @@ tr {
 }
 
 .icon-cars:hover {
-
   .close-button {
     display: block;
   }
@@ -144,7 +138,6 @@ tr {
   .frame-cars {
     @apply border-2 border-solid;
   }
-
 }
 
 .text-tenor {
@@ -154,7 +147,7 @@ tr {
 .text-mini {
   font-size: 10px;
   text-align: end;
-  margin-right: 20;  
+  margin-right: 20px;  
 }
 
 .text-label {
