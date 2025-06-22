@@ -180,9 +180,9 @@ export default function Home() {
                 Kami menyediakan mobil suzuki terbaru, stylis dan juga nyaman untuk digunakan.
               </p>
             </div>
-            <div className={`flex ${isOpen !== null ? 'flex-col px-5 md:px-28' : 'flex-row'}  flex-wrap h-auto gap-4 items-start justify-center py-10`}>
+            <div className={`flex px-5 ${isOpen !== null ? 'flex-col md:px-28' : 'flex-row'}  flex-wrap h-auto gap-4 items-start justify-center py-10`}>
               {cars.map((car, index) => (
-                <div className={` ${isOpen !== null ? 'w-full' : 'w-80'}  h-min items-stretch min-h-[560px] flex flex-col p-5 rounded-lg shadow-md hover:shadow-xl transition-all bg-white`}>
+                <div className={` ${isOpen !== null ? 'w-full' : 'w-full md:w-80'}  h-min items-stretch min-h-[560px] flex flex-col p-5 rounded-lg shadow-md hover:shadow-xl transition-all bg-white`}>
                   <div className="rounded-md w-full grid place-items-center h-min relative overflow-hidden p-2 ">
                     <div className="absolute top-0 left-0 bg-red-500 py-1 px-3 text-white font-semibold rounded-full">
                       New
