@@ -306,7 +306,7 @@ export default function Home() {
               </div>
               <div className="w-full flex flex-col pt-10 px-5 md:px-0 gap-5 items-center justify-center">
                 <div className="w-full rounded-xl flex h-min flex-col shadow-xl p-2 overflow-hidden bg-white">
-                  <div className="w-full flex flex-col md:flex-row px-20 md:px-30 h-min py-15 md:py-20 gap-8 md:gap-15 rounded-xl bg-red-500">
+                  <div className="w-full flex flex-col md:flex-row px-10 md:px-30 h-min py-15 md:py-20 gap-8 md:gap-15 rounded-xl bg-red-500">
 
                     <div className="flex flex-col gap-3">
                       <div className="flex flex-row gap-5 items-center">
