@@ -46,3 +46,9 @@ export type CarType = {
   name: string;
   price: number;
 };
+
+export type Testimonials = {
+  id: number;
+  name: string | '';
+  image: string | '';
+};
