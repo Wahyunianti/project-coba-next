@@ -1,5 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 @import "react-tooltip/dist/react-tooltip.css";
+@import "react-slideshow-image/dist/styles.css";
+@import "react-photo-view/dist/react-photo-view.css";
+
 @import "tailwindcss";
 
 :root {
@@ -21,10 +24,22 @@
   }
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: 'Poppins', sans-serif;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hidden {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none;    /* Firefox */
 }
 
 
@@ -134,4 +149,14 @@ tr {
 
 .text-tenor {
   display: none;
+}
+
+.text-mini {
+  font-size: 10px;
+  text-align: end;
+  margin-right: 20;  
+}
+
+.text-label {
+  font-size: 14px;
 }

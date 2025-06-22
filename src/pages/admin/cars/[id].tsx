@@ -16,7 +16,6 @@ import { Service } from '@/utilities/service';
 import ModalConfirm from '@/components/ModalConfirm';
 import ModalSuccess from '@/components/ModalSuccess';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
-import 'react-photo-view/dist/react-photo-view.css';
 
 
 export default function DetailCar() {

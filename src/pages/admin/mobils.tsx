@@ -11,8 +11,6 @@ import { RiDeleteBin5Fill, RiEdit2Fill } from 'react-icons/ri';
 import Link from 'next/link';
 import { Service } from '@/utilities/service';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
-import 'react-photo-view/dist/react-photo-view.css';
-
 
 export default function TMobils() {
     const [showModal, setShowModal] = useState(false);
@@ -250,9 +248,7 @@ export default function TMobils() {
                             ))}
                         </div>
                     </>
-
                 }
-
             </div>
 
             {/* Modal Tambah  */}

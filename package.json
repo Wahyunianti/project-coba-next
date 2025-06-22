@@ -22,6 +22,7 @@
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",
     "react-photo-view": "^1.2.7",
+    "react-slideshow-image": "^4.3.2",
     "react-tooltip": "^5.28.1",
     "uuid": "^11.1.0"
   },
