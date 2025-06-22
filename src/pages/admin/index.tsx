@@ -12,21 +12,79 @@ import { IoSettingsOutline } from "react-icons/io5";
 import { Tooltip } from 'react-tooltip';
 import { RiEdit2Fill } from "react-icons/ri";
 import { TbLogout } from "react-icons/tb";
+import ModalSuccess from '@/components/ModalSuccess';
+import ModalTambah from '@/components/ModalTambah';
+import ModalConfirm from '@/components/ModalConfirm';
+import { supabase } from '@/lib/supabase';
+import { Settings } from '@/utilities/types';
 
 
 export default function AdminIndexRedirect({ children }: { children: ReactNode }) {
   const router = useRouter();
   const path = router.pathname;
 
+  const [sett, setSetting] = useState<Settings>({} as Settings);
   const [username, setUsername] = useState<string | undefined>();
   const [profil, setProfil] = useState<string | undefined>();
+  const [showModal, setShowModal] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  const [form, setForm] = useState({
+    name: '',
+    image: '',
+    imagePath: '',
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setSetting(prev => ({ ...prev, [name]: value }));
+  };
+
+  const fetchSetting = async () => {
+    const { data, error } = await supabase.from('setting')
+      .select('*').eq('id', 1).single();
+    if (!error) setSetting(data as Settings);
+  };
 
   useEffect(() => {
+    fetchSetting();
     if (typeof window !== 'undefined') {
       setUsername(Cookies.get('username'));
       setProfil(Cookies.get('profil'));
     }
   }, []);
+
+  const submitSetting = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const payload = {
+      whatsapp: sett.whatsapp,
+      phone: sett.phone,
+      email: sett.email,
+      facebook: sett.facebook,
+      alamat: sett.alamat,
+    };
+
+    let error;
+    ({ error } = await supabase.from('setting').update(payload).eq('id', 1));
+
+    if (error) {
+      alert('Gagal menyimpan data: ' + error.message);
+      return;
+    }
+
+    showSuccessModal();
+    setShowModal(false);
+  };
+
+  const showSuccessModal = () => {
+    setShowSuccess(true);
+    setTimeout(() => {
+      setShowSuccess(false);
+      fetchSetting();
+    }, 2000);
+  };
 
   const handleLogout = () => {
     console.log(username, profil);
@@ -155,6 +213,7 @@ export default function AdminIndexRedirect({ children }: { children: ReactNode }
                   <div className='hidden md:flex w-min flex-row gap-3 justify-end items-center h-full overflow-hidden px-3'>
                     <div className='w-min'>
                       <div
+                        onClick={() => setShowModal(true)}
                         data-tooltip-id="my-tooltip" data-tooltip-content="Setting"
                         className='w-14 h-14 bg-white hover:bg-slate-50 rounded-full  grid place-items-center border cursor-pointer border-gray-300'>
                         <IoSettingsOutline className='text-3xl text-black icon-sidebar hover:animate-spin' />
@@ -180,7 +239,9 @@ export default function AdminIndexRedirect({ children }: { children: ReactNode }
               <div className='w-auto h-20  bg-slate-50 fixed top-0 left-0 right-0 md:right-7 z-10'>
                 <div className='w-full flex flex-row justify-center items-center h-10 gap-3 px-3 md:px-0'>
                   <h1 className='text-center mt-3 block md:hidden'>{username}</h1>
-                  <RiEdit2Fill className='text-2xl mt-2 text-black block md:hidden' />
+                  <RiEdit2Fill
+                    onClick={() => setShowModal(true)}
+                    className='text-2xl mt-2 text-black block md:hidden' />
                 </div>
               </div>
 
@@ -196,6 +257,96 @@ export default function AdminIndexRedirect({ children }: { children: ReactNode }
 
         </div>
       </div>
+
+      {/* Modal Tambah  */}
+      <ModalTambah show={showModal} onClose={() => setShowModal(false)} judul={"Setting"}>
+        <form onSubmit={submitSetting} className="space-y-4">
+          <div>
+            <label className="block mb-1 font-medium">Nomor Whatsapp</label>
+            <div className='flex flex-row gap-2'>
+              <div className='h-full py-2 px-3 border rounded-md text-slate-600 border-slate-400 bg-slate-100'>
+                +62
+              </div>
+              <input
+                type="number"
+                placeholder='Nomor Whatsapp'
+                name="whatsapp"
+                value={sett.whatsapp}
+                onChange={handleChange}
+                className="input-text"
+                required
+              />
+            </div>
+
+          </div>
+          <div>
+            <label className="block mb-1 font-medium">Nomor Telepon</label>
+            <div className='flex flex-row gap-2'>
+              <div className='h-full py-2 px-3 border rounded-md text-slate-600 border-slate-400 bg-slate-100'>
+                +62
+              </div>
+              <input
+                type="number"
+                placeholder='Nomor Telepon'
+                name="phone"
+                value={sett.phone}
+                onChange={handleChange}
+                className="input-text"
+                required
+              />
+
+            </div>
+          </div>
+          <div>
+            <label className="block mb-1 font-medium">Alamat Email</label>
+            <input
+              type="text"
+              placeholder='Alamat Email'
+              name="email"
+              value={sett.email}
+              onChange={handleChange}
+              className="input-text"
+              required
+            />
+          </div>
+          <div>
+            <label className="block mb-1 font-medium">Link Facebook</label>
+            <input
+              type="text"
+              placeholder='Link Facebook'
+              name="facebook"
+              value={sett.facebook}
+              onChange={handleChange}
+              className="input-text"
+              required
+            />
+          </div>
+          <div>
+            <label className="block mb-1 font-medium">Alamat</label>
+            <input
+              type="text"
+              placeholder='Lokasi Alamat'
+              name="alamat"
+              value={sett.alamat}
+              onChange={handleChange}
+              className="input-text"
+              required
+            />
+          </div>
+          <div className="flex justify-end space-x-2">
+            <button
+              type="submit"
+              className="button-primary"
+            >
+              Simpan
+            </button>
+          </div>
+        </form>
+      </ModalTambah>
+
+
+      <ModalSuccess show={showSuccess} onClose={() => setShowSuccess(false)} message="Data Berhasil Disimpan!" />
+
 
     </div>
   );

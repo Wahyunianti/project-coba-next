@@ -52,3 +52,12 @@ export type Testimonials = {
   name: string | '';
   image: string | '';
 };
+
+export type Settings = {
+  id: number;
+  whatsapp:number | 0;
+  phone: number | 0;
+  email: string | '';
+  facebook: string | '';
+  alamat: string | '';
+};

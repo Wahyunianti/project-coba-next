@@ -18,6 +18,7 @@ import { FaWhatsapp } from "react-icons/fa";
 import { FaPhone } from "react-icons/fa6";
 import { MdEmail } from "react-icons/md";
 import { PiMapPinFill } from "react-icons/pi";
+import { Settings } from "@/utilities/types";
 
 export default function Home() {
   const imageUrls = [
@@ -28,6 +29,7 @@ export default function Home() {
   ];
 
   const [cars, setCars] = useState<CarTenorType[]>([] as CarTenorType[]);
+  const [sett, setSetting] = useState<Settings>({} as Settings);
   const [testi, setTesti] = useState<Testimonials[]>([] as Testimonials[]);
   const [isOpen, setIsOpen] = useState<number | null>(null);
   const [openBar, setOpenBar] = useState<boolean>(false);
@@ -69,9 +71,17 @@ export default function Home() {
     }
   };
 
+  const fetchSetting = async () => {
+    const { data, error } = await supabase.from('setting')
+      .select('*').eq('id', 1).single();
+    if (!error) setSetting(data as Settings);
+  };
+
+
   useEffect(() => {
     fetchMobil();
     fetchTesti();
+    fetchSetting();
   }, []);
 
   return (
@@ -179,11 +189,11 @@ export default function Home() {
                 <label className="text-label">
                   Kami menyediakan unit mobil suzuki terlengkap dengan harga terbaru dan pastinya promo yang menarik. Hanya di showroom kami Anda bisa dengan mudah mendapatkan mobil impian dengan DP yang ringan. Hubungi saya untuk informasi lebih detailnya mengenai harga dari suzuki Alsut atau kunjungi alamat showroom kami.
                 </label>
-                <button
-                  onClick={() => console.log(cars)}
+                <a
+                href={`https://api.whatsapp.com/send?phone=62${sett.whatsapp}`}
                   className="text-sm px-4 py-2 bg-blue-800 rounded-xl w-min text-white font-semibold cursor-pointer hover:bg-blue-900 transition-all">
                   Hubungi
-                </button>
+                </a>
               </div>
             </div>
           </div>
@@ -298,9 +308,11 @@ export default function Home() {
                       </div>
 
                     </div>
-                    <button className="text-sm mt-5 px-4 py-2 bg-blue-800 rounded-xl w-min text-white font-semibold cursor-pointer hover:bg-blue-900 transition-all">
+                    <a
+                    href={`https://api.whatsapp.com/send?phone=62${sett.whatsapp}`}
+                    className="text-sm mt-5 px-4 py-2 bg-blue-800 rounded-xl w-min text-white font-semibold cursor-pointer hover:bg-blue-900 transition-all">
                       Hubungi
-                    </button>
+                    </a>
                   </div>
                 ))}
               </div>
@@ -420,15 +432,15 @@ export default function Home() {
               <div className="flex flex-col gap-2">
                 <div className="flex flex-row gap-2 items-center">
                   <FaWhatsapp className='size-4 text-white icon-sidebar' />
-                  <p className="text-white text-label">+6281 234 567 367</p>
+                  <p className="text-white text-label">+62{sett.whatsapp}</p>
                 </div>
                 <div className="flex flex-row gap-2 items-center">
                   <FaPhone className='size-4 text-white icon-sidebar' />
-                  <p className="text-white text-label">02337876</p>
+                  <p className="text-white text-label">0{sett.phone}</p>
                 </div>
                 <div className="flex flex-row gap-2 items-center">
                   <MdEmail className='size-4 text-white icon-sidebar' />
-                  <p className="text-white text-label">admin@email.com</p>
+                  <p className="text-white text-label">{sett.email}</p>
                 </div>
               </div>
             </div>
@@ -438,7 +450,7 @@ export default function Home() {
               <div className="flex flex-col gap-2">
                 <div className="flex flex-row gap-2 items-center">
                   <PiMapPinFill className='size-4 text-white icon-sidebar' />
-                  <p className="text-white text-label">Jl. Raya Serang - Jakarta</p>
+                  <p className="text-white text-label">{sett.alamat}</p>
                 </div>
 
               </div>
@@ -447,7 +459,7 @@ export default function Home() {
         </section>
 
         <div className="fixed bottom-10 right-0 flex flex-col gap-2 w-20 h-min">
-          <a href="https://api.whatsapp.com/send?phone=6281234567367" target="_blank" rel="noopener noreferrer">
+          <a href={sett.facebook} target="_blank" rel="noopener noreferrer">
             <div className="w-full h-min flex flex-col items-center justify-center gap-1">
               <img
                 src="./facebook.png"
@@ -456,7 +468,7 @@ export default function Home() {
               />
             </div>
           </a>
-          <a href="https://api.whatsapp.com/send?phone=6281234567367" target="_blank" rel="noopener noreferrer">
+          <a href={`https://api.whatsapp.com/send?phone=62${sett.whatsapp}`} target="_blank" rel="noopener noreferrer">
             <div className="w-full h-min flex flex-col items-center justify-center gap-1">
               <img
                 src="./whatsapp.png"
