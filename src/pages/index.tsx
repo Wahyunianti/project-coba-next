@@ -201,7 +201,7 @@ export default function Home() {
             <div className="w-full md:px-80">
               <div className={`flex px-5 ${isOpen !== null ? 'flex-col' : 'flex-row'}  flex-wrap h-auto gap-10 items-start justify-center py-10`}>
                 {cars.map((car, index) => (
-                  <div className={` ${isOpen !== null ? 'w-full' : 'w-full md:w-68'}  h-min items-stretch  flex flex-col p-5 rounded-lg shadow-md hover:shadow-xl transition-all bg-white`}>
+                  <div key={index} className={` ${isOpen !== null ? 'w-full' : 'w-full md:w-68'}  h-min items-stretch  flex flex-col p-5 rounded-lg shadow-md hover:shadow-xl transition-all bg-white`}>
                     <div
                       id={`promo${index}`}
                       className="rounded-md w-full grid place-items-center h-min relative overflow-hidden p-2 ">
@@ -220,8 +220,8 @@ export default function Home() {
                     </div>
                     <div className="w-full h-min relative overflow-hidden p-2 block ">
                       <div className="flex flex-row overflow-x-scroll scrollbar-hidden p-2 overflow-y-hidden">
-                        {car.cars_image.map((img, index) => (
-                          <PhotoProvider>
+                        {car.cars_image.map((img, idx) => (
+                          <PhotoProvider key={idx}>
                             <PhotoView src={img.image}>
                               <img
                                 src={img.image}
