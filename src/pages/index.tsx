@@ -109,7 +109,7 @@ export default function Home() {
 
         </nav>
 
-        <section id="home" className="scroll-smooth pt-5 md:pt-20">
+        <section id="home" className="scroll-smooth pt-20">
           <div className="w-full">
             <ImageSlideshow images={imageUrls} />
           </div>
