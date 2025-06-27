@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { IoIosArrowDropup, IoIosArrowDropdown } from 'react-icons/io';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import { supabase } from '@/lib/supabase';
-import { CarTenorType, Testimonials } from "@/utilities/types";
+import { CarTenorType, Testimonials, Landing } from "@/utilities/types";
 import Utilities from "@/utilities/Utilities";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { BiSolidDiscount } from "react-icons/bi";
@@ -33,14 +33,28 @@ export default function Home() {
   const [testi, setTesti] = useState<Testimonials[]>([] as Testimonials[]);
   const [isOpen, setIsOpen] = useState<number | null>(null);
   const [openBar, setOpenBar] = useState<boolean>(false);
+  const [image, setImage] = useState<string[]>(imageUrls);
+  const sections = ['home', 'produk', 'promo', 'testimoni', 'kontak'];
+  const [activeSection, setActiveSection] = useState('home');
+
 
   const util = new Utilities();
+
+  const fetchLanding = async () => {
+    const { data, error } = await supabase.from('landing_page').select('*').order('id', { ascending: false });
+    if (error) {
+      console.error(error);
+    } else {
+      setImage(data.map((item: Landing) => item.image));
+    }
+  };
 
   const fetchMobil = async () => {
     const { data, error } = await supabase.from('cars')
       .select(`
     id,
     name,
+    description,
     image,
     cars_image (
     image
@@ -82,6 +96,26 @@ export default function Home() {
     fetchMobil();
     fetchTesti();
     fetchSetting();
+    fetchLanding();
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      let current = 'home';
+      for (const section of sections) {
+        const el = document.getElementById(section);
+        if (el) {
+          const top = el.getBoundingClientRect().top;
+          if (top <= 100) {
+            current = section;
+          }
+        }
+      }
+      setActiveSection(current);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
@@ -101,27 +135,68 @@ export default function Home() {
           <div className="w-1/2 flex flex-row gap-3 justify-end md:justify-start items-center">
             <GiHamburgerMenu onClick={() => setOpenBar(!openBar)} className='size-8 mx-3 block md:hidden text-black' />
 
-            <a className="bg-blue-800 hidden md:block text-sm text-white px-3 py-2 font-semibold cursor-pointer" href="#home">Home</a>
-            <a className="hover:bg-blue-800 hidden md:block  text-sm hover:text-white font-semibold text-black cursor-pointer transition-all px-3 py-2" href="#produk">Produk</a>
-            <a className="hover:bg-blue-800 hidden md:block  text-sm hover:text-white font-semibold text-black cursor-pointer transition-all px-3 py-2" href="#promo">Promo</a>
-            <a className="hover:bg-blue-800 hidden md:block  text-sm hover:text-white font-semibold text-black cursor-pointer transition-all px-3 py-2" href="#testimoni">Testimoni</a>
-            <a className="hover:bg-blue-800 hidden md:block text-sm hover:text-white font-semibold text-black cursor-pointer transition-all px-3 py-2" href="#kontak">Kontak</a>
+            <a className={`hidden md:block text-sm px-3 py-2 font-semibold cursor-pointer transition-all ${activeSection === 'home' ? 'bg-blue-800 text-white' : 'text-black hover:bg-blue-800 hover:text-white'}`} href="#home">Home</a>
+            <a className={`hidden md:block text-sm px-3 py-2 font-semibold cursor-pointer transition-all ${activeSection === 'produk' ? 'bg-blue-800 text-white' : 'text-black hover:bg-blue-800 hover:text-white'}`} href="#produk">Produk</a>
+            <a className={`hidden md:block text-sm px-3 py-2 font-semibold cursor-pointer transition-all ${activeSection === 'promo' ? 'bg-blue-800 text-white' : 'text-black hover:bg-blue-800 hover:text-white'}`} href="#promo">Promo</a>
+            <a className={`hidden md:block text-sm px-3 py-2 font-semibold cursor-pointer transition-all ${activeSection === 'testimoni' ? 'bg-blue-800 text-white' : 'text-black hover:bg-blue-800 hover:text-white'}`} href="#testimoni">Testimoni</a>
+            <a className={`hidden md:block text-sm px-3 py-2 font-semibold cursor-pointer transition-all ${activeSection === 'kontak' ? 'bg-blue-800 text-white' : 'text-black hover:bg-blue-800 hover:text-white'}`} href="#kontak">Kontak</a>
           </div>
         </nav>
         <nav className={`fixed transition-all duration-500 ease-in-out  z-20 top-0 w-full right-0 left-0 ${openBar ? 'max-h-400' : 'max-h-0'} overflow-hidden mt-20 border-b shadow-sm border-slate-100 bg-white`}>
           <div className="w-full h-min flex flex-col" onClick={() => setOpenBar(!openBar)}>
-            <a className="bg-blue-800 text-sm text-white px-3 py-2 font-semibold cursor-pointer" href="#home">Home</a>
-            <a className="hover:bg-blue-800  text-sm hover:text-white font-semibold text-black cursor-pointer transition-all px-3 py-2" href="#produk">Produk</a>
-            <a className="hover:bg-blue-800 text-sm hover:text-white font-semibold text-black cursor-pointer transition-all px-3 py-2" href="#promo">Promo</a>
-            <a className="hover:bg-blue-800  text-sm hover:text-white font-semibold text-black cursor-pointer transition-all px-3 py-2" href="#testimoni">Testimoni</a>
-            <a className="hover:bg-blue-800 text-sm hover:text-white font-semibold text-black cursor-pointer transition-all px-3 pb-5 py-2" href="#kontak">Kontak</a>
-          </div>
+            <a
+              className={`text-sm px-3 py-2 font-semibold cursor-pointer transition-all ${activeSection === 'home'
+                ? 'bg-blue-800 text-white'
+                : 'text-black hover:bg-blue-800 hover:text-white'
+                }`}
+              href="#home"
+            >
+              Home
+            </a>
+            <a
+              className={`text-sm px-3 py-2 font-semibold cursor-pointer transition-all ${activeSection === 'produk'
+                ? 'bg-blue-800 text-white'
+                : 'text-black hover:bg-blue-800 hover:text-white'
+                }`}
+              href="#produk"
+            >
+              Produk
+            </a>
+            <a
+              className={`text-sm px-3 py-2 font-semibold cursor-pointer transition-all ${activeSection === 'promo'
+                ? 'bg-blue-800 text-white'
+                : 'text-black hover:bg-blue-800 hover:text-white'
+                }`}
+              href="#promo"
+            >
+              Promo
+            </a>
+            <a
+              className={`text-sm px-3 py-2 font-semibold cursor-pointer transition-all ${activeSection === 'testimoni'
+                ? 'bg-blue-800 text-white'
+                : 'text-black hover:bg-blue-800 hover:text-white'
+                }`}
+              href="#testimoni"
+            >
+              Testimoni
+            </a>
+            <a
+              className={`text-sm px-3 py-2 pb-5 font-semibold cursor-pointer transition-all ${activeSection === 'kontak'
+                ? 'bg-blue-800 text-white'
+                : 'text-black hover:bg-blue-800 hover:text-white'
+                }`}
+              href="#kontak"
+            >
+              Kontak
+            </a> </div>
 
         </nav>
 
         <section id="home" className="scroll-smooth pt-20">
-          <div className="w-full">
-            <ImageSlideshow images={imageUrls} />
+          <div className="w-full flex justify-center">
+            <div className="w-full max-w-screen">
+              <ImageSlideshow images={image} />
+            </div>
           </div>
         </section>
 
@@ -178,19 +253,19 @@ export default function Home() {
             <div className="flex flex-col md:flex-row gap-3 max-w-3xl items-center justify-center min-h-min">
               <div className="w-2/3 md:w-1/2">
                 <img
-                  src="./suzuki-showroom.png"
+                  src="./bapak_suzuki.jpeg"
                   alt="profil"
-                  className="w-100"
+                  className="w-100 rounded-full size-100 object-cover object-top"
                 />
               </div>
               <div className="w-2/3 md:w-1/2 flex flex-col gap-3">
                 <p className="text-red-600">ABOUT</p>
-                <h6 className="text-3xl font-bold">Promo Suzuki Alsut</h6>
+                <h6 className="text-3xl font-bold">SUZUKI ALAM SUTERA</h6>
                 <label className="text-label">
-                  Kami menyediakan unit mobil suzuki terlengkap dengan harga terbaru dan pastinya promo yang menarik. Hanya di showroom kami Anda bisa dengan mudah mendapatkan mobil impian dengan DP yang ringan. Hubungi saya untuk informasi lebih detailnya mengenai harga dari suzuki Alsut atau kunjungi alamat showroom kami.
+                  Suzuki Alam Sutera menghadirkan beragam pilihan unit mobil Suzuki terbaru dengan harga yang kompetitif dan penawaran menarik. Kami menyediakan kemudahan bagi Anda untuk memiliki mobil impian melalui skema pembayaran dengan uang muka ringan dan proses yang cepat. Dapatkan informasi lengkap mengenai harga, promo, serta ketersediaan unit dengan menghubungi saya langsung, atau silakan kunjungi showroom resmi Suzuki Alsut untuk mendapatkan pelayanan terbaik dari kami.
                 </label>
                 <a
-                href={`https://api.whatsapp.com/send?phone=62${sett.whatsapp}`}
+                  href={`https://api.whatsapp.com/send?phone=62${sett.whatsapp}`}
                   className="text-sm px-4 py-2 bg-blue-800 rounded-xl w-min text-white font-semibold cursor-pointer hover:bg-blue-900 transition-all">
                   Hubungi
                 </a>
@@ -245,6 +320,8 @@ export default function Home() {
                     </div>
                     <div className="w-full flex flex-col gap-2 py-2 mb-5">
                       <p className="font-semibold">{car.name}</p>
+                      {car.description &&
+                        <p className='text-label text-slate-500 text-start line-clamp-2'>{car.description}</p>}
                       {car.cars_type?.length > 0 ? (
                         <label className="text-label">
 
@@ -309,8 +386,8 @@ export default function Home() {
 
                     </div>
                     <a
-                    href={`https://api.whatsapp.com/send?phone=62${sett.whatsapp}`}
-                    className="text-sm mt-5 px-4 py-2 bg-blue-800 rounded-xl w-min text-white font-semibold cursor-pointer hover:bg-blue-900 transition-all">
+                      href={`https://api.whatsapp.com/send?phone=62${sett.whatsapp}`}
+                      className="text-sm mt-5 px-4 py-2 bg-blue-800 rounded-xl w-min text-white font-semibold cursor-pointer hover:bg-blue-900 transition-all">
                       Hubungi
                     </a>
                   </div>
@@ -397,8 +474,8 @@ export default function Home() {
 
               {testi.map((test, index) => (
                 <div
-                key={index}
-                className="w-60 h-100 cursor-pointer p-2 object-cover overflow-hidden rounded-lg shadow-lg hover:shadow-2xl transition-all grid place-items-center ">
+                  key={index}
+                  className="w-60 h-100 cursor-pointer p-2 object-cover overflow-hidden rounded-lg shadow-lg hover:shadow-2xl transition-all grid place-items-center ">
                   <PhotoProvider>
                     <PhotoView src={test.image}>
                       <img
@@ -415,8 +492,8 @@ export default function Home() {
         </section>
 
 
-        <section id="kontak" className="scroll-smooth relative pt-5 md:pt-20">
-          <footer className="w-full sticky flex flex-col-reverse md:flex-row px-10 gap-10 md:px-80 bottom-0 py-20 left-0 right-0 bg-blue-800 h-min">
+        <section className="scroll-smooth relative pt-5 md:pt-20">
+          <footer id="kontak" className="w-full sticky flex flex-col-reverse md:flex-row px-10 gap-10 md:px-80 bottom-0 py-20 left-0 right-0 bg-blue-800 h-min">
             <div className="flex flex-col md:w-1/3">
               <img
                 src="./logo-suzuki-putih.png"
@@ -449,7 +526,7 @@ export default function Home() {
               <p className="text-white twxt-label font-semibold">Alamat</p>
               <div className="flex flex-col gap-2">
                 <div className="flex flex-row gap-2 items-center">
-                  <PiMapPinFill className='size-4 text-white icon-sidebar' />
+                  <PiMapPinFill className='size-8 text-white icon-sidebar' />
                   <p className="text-white text-label">{sett.alamat}</p>
                 </div>
 
@@ -468,6 +545,15 @@ export default function Home() {
               />
             </div>
           </a>
+          <a href={sett.instagram} target="_blank" rel="noopener noreferrer">
+            <div className="w-full h-min flex flex-col items-center justify-center gap-1">
+              <img
+                src="./Instagram_icon.png.webp"
+                alt="profil"
+                className="w-11 rounded-full"
+              />
+            </div>
+          </a>
           <a href={`https://api.whatsapp.com/send?phone=62${sett.whatsapp}`} target="_blank" rel="noopener noreferrer">
             <div className="w-full h-min flex flex-col items-center justify-center gap-1">
               <img
@@ -480,7 +566,7 @@ export default function Home() {
           <a href="#home" rel="noopener noreferrer">
             <div className="w-full h-min grid place-items-center">
               <div className=" bg-red-600 size-11 rounded-full grid place-items-center">
-              <IoIosArrowDropup className="size-8 text-white" />
+                <IoIosArrowDropup className="size-8 text-white" />
               </div>
             </div>
           </a>

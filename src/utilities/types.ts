@@ -8,11 +8,17 @@ export type CarTenorType = {
   id: number;
   name: string | '';
   image: string | '';
+  description: string | '';
   cars_image: CarImage[];
   cars_type: CarTypeWithTenor[];
 };
 
 export type CarImage = {
+  id: number;
+  image: string | '';
+};
+
+export type Landing = {
   id: number;
   image: string | '';
 };
@@ -38,6 +44,7 @@ export type CarTenor = {
 
 export type CarDetail = {
   name: string;
+  description: string;
   image: string;
   cars_type: CarType[]
 };
@@ -59,5 +66,6 @@ export type Settings = {
   phone: number | 0;
   email: string | '';
   facebook: string | '';
+  instagram: string | '';
   alamat: string | '';
 };

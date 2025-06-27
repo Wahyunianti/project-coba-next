@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Slide } from 'react-slideshow-image';
+import 'react-slideshow-image/dist/styles.css';
 
 type ImageSlideshowProps = {
   images: string[];
@@ -18,14 +19,15 @@ const ImageSlideshow: React.FC<ImageSlideshowProps> = ({ images }) => {
   };
 
   return (
-    <div className="w-full rounded-lg overflow-hidden shadow-md">
+    <div className="w-full overflow-hidden">
       <Slide {...properties}>
         {images.map((img, index) => (
-          <div key={index} className="each-slide-effect">
-            <div
-              className="w-full h-[350px] md:h-[950px] bg-center bg-cover"
-              style={{ backgroundImage: `url(${img})` }}
-            ></div>
+          <div key={index} className="flex justify-center items-center bg-black">
+            <img
+              src={img}
+              alt={`slide-${index}`}
+              className="w-full max-h-[350px] md:max-h-[650px] object-contain"
+            />
           </div>
         ))}
       </Slide>

@@ -17,6 +17,8 @@ import ModalTambah from '@/components/ModalTambah';
 import ModalConfirm from '@/components/ModalConfirm';
 import { supabase } from '@/lib/supabase';
 import { Settings } from '@/utilities/types';
+import { MdImagesearchRoller } from "react-icons/md";
+import Instagram from 'next-auth/providers/instagram';
 
 
 export default function AdminIndexRedirect({ children }: { children: ReactNode }) {
@@ -63,6 +65,7 @@ export default function AdminIndexRedirect({ children }: { children: ReactNode }
       phone: sett.phone,
       email: sett.email,
       facebook: sett.facebook,
+      Instagram: sett.instagram,
       alamat: sett.alamat,
     };
 
@@ -140,6 +143,12 @@ export default function AdminIndexRedirect({ children }: { children: ReactNode }
                 <AiOutlineComment className='text-2xl text-white icon-sidebar' />
                 <h3 className='text-base font-semibold text-white icon-sidebar'>Testimonials</h3>
               </Link>
+              <Link
+                href="/admin/banners" prefetch={true}
+                className='w-full flex flex-row items-center justify-start gap-3 h-10 menu-sidebar cursor-pointer'>
+                <MdImagesearchRoller className='text-2xl text-white icon-sidebar' />
+                <h3 className='text-base font-semibold text-white icon-sidebar'>Banner</h3>
+              </Link>
 
             </div>
             <div className='flex flex-col items-center justify-start w-full h-12 gap-4 px-10 '>
@@ -160,7 +169,7 @@ export default function AdminIndexRedirect({ children }: { children: ReactNode }
                 <div className='flex w-full justify-between flex-row h-full '>
                   <div className='w-full md:w-4/5 h-full px-3'>
                     <div className='w-full h-full bg-white rounded-full overflow-hidden border border-gray-300'>
-                      <div className='w-full md:w-[70%] grid grid-cols-4 gap-3 h-full p-3 px-5'>
+                      <div className='w-full md:w-[80%] grid grid-cols-5 gap-3 h-full p-3 px-5'>
                         <Link
                           key={'/admin/dashboard'}
                           href="/admin/dashboard"
@@ -203,6 +212,17 @@ export default function AdminIndexRedirect({ children }: { children: ReactNode }
                             }`}>
                           <AiOutlineComment className='text-2xl text-black block md:hidden icon-area' />
                           <h2 className='text-black font-bold text-lg hidden md:block'>Testimoni</h2>
+                        </Link>
+
+                        <Link
+                          key={'/admin/banners'}
+                          href="/admin/banners"
+                          prefetch={true}
+                          data-tooltip-id="my-tooltip" data-tooltip-content="Data Landing Page"
+                          className={`h-full cursor-pointer rounded-full grid place-items-center hover-link transition-all hover:bg-black ${path === '/admin/banners' ? 'active-link' : ''
+                            }`}>
+                          <MdImagesearchRoller className='text-2xl text-black block md:hidden icon-area' />
+                          <h2 className='text-black font-bold text-lg hidden md:block'>Banner</h2>
                         </Link>
 
                       </div>
@@ -316,6 +336,18 @@ export default function AdminIndexRedirect({ children }: { children: ReactNode }
               placeholder='Link Facebook'
               name="facebook"
               value={sett.facebook}
+              onChange={handleChange}
+              className="input-text"
+              required
+            />
+          </div>
+          <div>
+            <label className="block mb-1 font-medium">Link Instagram</label>
+            <input
+              type="text"
+              placeholder='Link Instagram'
+              name="instagram"
+              value={sett.instagram}
               onChange={handleChange}
               className="input-text"
               required

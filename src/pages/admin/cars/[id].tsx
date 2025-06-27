@@ -44,6 +44,7 @@ export default function DetailCar() {
   const getId = utils.UUIDInt();
   const [form, setForm] = useState<CarDetail>({
     name: '',
+    description: '',
     image: '',
     cars_type: []
   });
@@ -80,6 +81,7 @@ export default function DetailCar() {
       .select(`
     id,
     name,
+    description,
     image,
     cars_type (
       id,
@@ -306,8 +308,10 @@ export default function DetailCar() {
                     data-tooltip-id="my-tooltip" data-tooltip-content="Gambar Mobil"
                   />
                 </div>
-                <div className='w-full flex flex-col'>
+                <div className='w-full flex flex-col gap-3'>
                   <h1>{form?.name}</h1>
+                  {form?.description &&
+                    <p className='text-label text-slate-400 text-start overflow-hidden line-clamp-3'>{form?.description}</p>}
                   {form.cars_type?.length > 0 ? (
                     <h5 className='text-slate-500'>
                       Harga Mulai :{" "}
@@ -397,11 +401,11 @@ export default function DetailCar() {
               </table>
 
             </div>
-                          {dataTenor.length === 0 &&
-                <div className='w-full pb-5  grid place-items-center'>
-                  <p className='text-slate-400'>Data Tenor Kosong</p>
-                </div>
-              }
+            {dataTenor.length === 0 &&
+              <div className='w-full pb-5  grid place-items-center'>
+                <p className='text-slate-400'>Data Tenor Kosong</p>
+              </div>
+            }
           </div>
 
         }

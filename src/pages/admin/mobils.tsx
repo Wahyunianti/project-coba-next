@@ -30,6 +30,7 @@ export default function TMobils() {
 
     const [form, setForm] = useState({
         name: '',
+        description: '',
         image: '',
         imagePath: '',
     });
@@ -38,6 +39,7 @@ export default function TMobils() {
         if (!showModal) {
             setForm({
                 name: '',
+                description: '',
                 image: '',
                 imagePath: '',
             });
@@ -50,6 +52,7 @@ export default function TMobils() {
             .select(`
     id,
     name,
+    description,
     image,
     cars_type (
       id,
@@ -75,6 +78,7 @@ export default function TMobils() {
 
         const payload = {
             name: form.name,
+            description: form.description,
             image: form.image,
         };
 
@@ -102,6 +106,7 @@ export default function TMobils() {
             setShowSuccess(false);
             setForm({
                 name: '',
+                description: '',
                 image: '',
                 imagePath: '',
             });
@@ -112,6 +117,7 @@ export default function TMobils() {
     const handleEdit = (car: any) => {
         setForm({
             name: car.name,
+            description: car.description,
             image: car.image,
             imagePath: ''
         });
@@ -215,7 +221,8 @@ export default function TMobils() {
                                         </PhotoProvider>
                                     </div>
                                     <p className='text-sm font-semibold'>{car.name}</p>
-
+                                    {car.description &&
+                                        <p className='text-label text-slate-500 text-center h-20 overflow-hidden line-clamp-2'>{car.description}</p>}
                                     {car.cars_type?.length > 0 ? (
                                         <p className='text-center'>
 
@@ -261,6 +268,18 @@ export default function TMobils() {
                             placeholder='Nama Mobil'
                             name="name"
                             value={form.name}
+                            onChange={handleChange}
+                            className="input-text"
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label className="block mb-1 font-medium">Deskripsi</label>
+                        <input
+                            type="text"
+                            placeholder='Deskripsi Mobil'
+                            name="description"
+                            value={form.description}
                             onChange={handleChange}
                             className="input-text"
                             required
